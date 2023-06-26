@@ -102,7 +102,7 @@ class RRT:
         plt.axis('equal')
         plt.xlim(0, self.arena_size[0])
         plt.ylim(0, self.arena_size[1])
-        plt.show()
+        plt.show(block=False)
 
     def smooth_path(self, path):
         smoothed_path = [path[0]]  # Start with the first point in the path
