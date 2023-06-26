@@ -15,20 +15,19 @@ def traverse_points(start_point, end_point, point_set):
         
           # Move the robot towards the closest point (assuming it takes some time to move)
           current_point = closest_point
-          print('closest_point', closest_point)
           
           # Remove the visited point from the set
           point_set.pop(closest_point_index)
-          print('rest of points', point_set)
           print()
         else:
           current_point = end_point
           point_set.pop(0)
-          print('end_point', current_point)
-          print('rest of points', point_set)
     return current_point
 
 def traverse_goal_points(start_point, goal_point_set):
+    
+    rospy.init_node('task1', anonymous=True)
+
     current_goal_point = start_point
     while goal_point_set:
         distances = [calculate_distance(current_goal_point, point) for point in goal_point_set] #determine the closeset point from the set of points 
@@ -37,37 +36,25 @@ def traverse_goal_points(start_point, goal_point_set):
       
         # Move the robot towards the closest point (assuming it takes some time to move)
         current_goal_point = closest_goal_point
-        print('closest_point', closest_goal_point)
+        rospy.loginfo("task1: closest_point: " str(closest_goal_point))
         
         # Create an instance of the RRT class and run the algorithm
         rrt = RRT(start_point, current_goal_point, 3, (1.4, 1.4))
         if rrt.extend_tree():
             # If a path is found, retrieve the path and plot it
             path1 = rrt.find_path()
-            print(path1)
-            print(len(path1))
-            rrt.plot_path(path1)
-            print("Path found!")
+            #smooth path to less points
             smoothed_path  = rrt.smooth_path(path1)
-            print('smoothed_path', smoothed_path)
-            print('len(smoothed_path)', len(smoothed_path))
-            rrt.plot_smoothed_path(smoothed_path)
         else:
-            print("Unable to find a path.")   
+            rospy.loginfo("task1: unable to find path!")
         start_point = traverse_points(start_point, closest_goal_point, smoothed_path)
 
         # Remove the visited point from the set
         goal_point_set.pop(closest_goal_point_index)
-        print('rest of points', goal_point_set)
-        print()
 
 
-
-# Example usage
-start_point = (0.2, 0.2)
-goal_point_set = [(0.2, 1.2), (1.2, 1.2), (1.2, 0.2)]
-traverse_goal_points(start_point, goal_point_set)
-
-
-end_point = traverse_points(start_point, end_point, point_set)
-print('reched the end', end_point)
+if __name__ == '__main__':
+    # Example usage
+    start_point = (0.2, 0.2)
+    goal_point_set = [(0.2, 1.2), (1.2, 1.2), (1.2, 0.2)]
+    traverse_goal_points(start_point, goal_point_set)
