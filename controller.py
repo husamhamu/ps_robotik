@@ -126,7 +126,7 @@ def calculate_pid_controller(robot_x, robot_y, robot_orientation, goal_x, goal_y
 
     # Calculate the desired robot speed based on the distance to the goal
     desired_speed = min(distance_to_goal, max_speed)
-    print("control_signal", control_signal)
+    #print("control_signal", control_signal)
     # Calculate the left and right wheel speeds
     if robot_orientation != angle_to_goal:
       motor_id = left_or_right(math.degrees(robot_orientation), math.degrees(angle_to_goal))
