@@ -44,7 +44,9 @@ def traverse_goal_points(start_point, goal_point_set):
         rospy.loginfo("task1: closest_point: " + str(closest_goal_point))
         
         # Create an instance of the RRT class and run the algorithm
-        rrt = RRT(start_point, current_goal_point, 3, (1.4, 1.4))
+        arena_size = (1.4, 1.4)
+
+        rrt = RRT(start_point, current_goal_point, 3, arena_size=arena_size)
         if rrt.extend_tree():
             # If a path is found, retrieve the path and plot it
             path1 = rrt.find_path()
