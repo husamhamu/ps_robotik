@@ -61,7 +61,7 @@ def traverse_goal_points(start_point, goal_point_set):
         
         # Create an instance of the RRT class and run the algorithm
         arena_size = (1.4, 1.4)
-        print('traver_goal_points: start_point ', start_point)
+        print('traverse_goal_points: start_point ', start_point)
         rrt = RRT(start_point, current_goal_point, 3, arena_size=arena_size)
         if rrt.extend_tree():
             # If a path is found, retrieve the path and plot it
@@ -71,7 +71,7 @@ def traverse_goal_points(start_point, goal_point_set):
             rrt.plot_smoothed_path(smoothed_path)
         else:
             rospy.loginfo("task1: unable to find path!")
-
+        print("task1: start_point", start_point)
         start_point = traverse_points(start_point, closest_goal_point, smoothed_path)
 
         # Remove the visited point from the set
