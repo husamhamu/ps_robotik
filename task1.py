@@ -37,9 +37,9 @@ def traverse_points(start_point, end_point, point_set):
 
 def traverse_goal_points(start_point, goal_point_set):
     x = 0
+    listener = tf.TransformListener()
     while x==0:  
         try:
-            listener = tf.TransformListener()
             (trans, rot) = listener.lookupTransform('/map', '/csi://0', rospy.Time(0))
             x, y, z = trans
         except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException):
