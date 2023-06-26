@@ -14,13 +14,13 @@ def traverse_points(start_point, end_point, point_set):
           closest_point_index = distances.index(min(distances))
           closest_point = point_set[closest_point_index]
         
-          # Move the robot towards the closest point (assuming it takes some time to move)
-          follow_point(closest_point)
           current_point = closest_point
           
           # Remove the visited point from the set
           point_set.pop(closest_point_index)
-          print()
+          
+          # Move the robot towards the closest point (assuming it takes some time to move)
+          current_point = follow_point(closest_point)
         else:
           current_point = end_point
           point_set.pop(0)
