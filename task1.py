@@ -18,12 +18,15 @@ def traverse_points(start_point, end_point, point_set):
           closest_point = point_set[closest_point_index]
         
           current_point = closest_point
+        
+          # Move the robot towards the closest point (assuming it takes some time to move)
+          print("traverse_points", closest_point)
+          current_point = follow_point(closest_point)
           
           # Remove the visited point from the set
-          point_set.pop(closest_point_index) #make sure to pop the previous points as well if there is any 
+          for _ in range(closest_point_index +1):
+            point_set.pop(closest_point_index) #make sure to pop the previous points as well if there is any 
           
-          # Move the robot towards the closest point (assuming it takes some time to move)
-          current_point = follow_point(closest_point)
         else:
           current_point = end_point
           point_set.pop(0)
@@ -55,6 +58,7 @@ def traverse_goal_points(start_point, goal_point_set):
             rrt.plot_smoothed_path(smoothed_path)
         else:
             rospy.loginfo("task1: unable to find path!")
+
         start_point = traverse_points(start_point, closest_goal_point, smoothed_path)
 
         # Remove the visited point from the set

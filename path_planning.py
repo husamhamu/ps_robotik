@@ -100,8 +100,8 @@ class RRT:
         plt.plot(self.start[0], self.start[1], 'ro')
         plt.plot(self.goal[0], self.goal[1], 'ro')
         plt.axis('equal')
-        plt.xlim(0, arena_size[0])
-        plt.ylim(0, arena_size[1])
+        plt.xlim(0, self.arena_size[0])
+        plt.ylim(0, self.arena_size[1])
         plt.show()
 
     def smooth_path(self, path):
