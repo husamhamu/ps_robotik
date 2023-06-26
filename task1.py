@@ -37,7 +37,9 @@ def traverse_points(start_point, end_point, point_set):
 
 def traverse_goal_points(start_point, goal_point_set):
     x = 0
+    rospy.init_node('tf_listener_node', anonymous=True)
     listener = tf.TransformListener()
+    rate = rospy.Rate(10)
     while x==0:  
         try:
             (trans, rot) = listener.lookupTransform('/map', '/csi://0', rospy.Time(0))
