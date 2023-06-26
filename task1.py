@@ -38,7 +38,7 @@ def traverse_goal_points(start_point, goal_point_set):
       
         # Move the robot towards the closest point (assuming it takes some time to move)
         current_goal_point = closest_goal_point
-        rospy.loginfo("task1: closest_point: " str(closest_goal_point))
+        rospy.loginfo("task1: closest_point: " + str(closest_goal_point))
         
         # Create an instance of the RRT class and run the algorithm
         rrt = RRT(start_point, current_goal_point, 3, (1.4, 1.4))
