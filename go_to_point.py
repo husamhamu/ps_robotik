@@ -17,6 +17,7 @@ def follow_point(goal_point):
     rate = rospy.Rate(10)  # Rate of 1 Hz
     goal_x = goal_point[0]
     goal_y = goal_point[1]
+    
     # To control the motor wheels speed
     motors = Motor_Control()
     # PID controller gains (adjust these based on your requirements)
