@@ -47,6 +47,7 @@ def traverse_goal_points(start_point, goal_point_set):
             path1 = rrt.find_path()
             #smooth path to less points
             smoothed_path  = rrt.smooth_path(path1)
+            rrt.plot_smoothed_path(smoothed_path)
         else:
             rospy.loginfo("task1: unable to find path!")
         start_point = traverse_points(start_point, closest_goal_point, smoothed_path)
