@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+
+import rospy
 import math
 from path_planning import RRT
 from go_to_point import follow_point
@@ -17,7 +20,7 @@ def traverse_points(start_point, end_point, point_set):
           current_point = closest_point
           
           # Remove the visited point from the set
-          point_set.pop(closest_point_index)
+          point_set.pop(closest_point_index) #make sure to pop the previous points as well if there is any 
           
           # Move the robot towards the closest point (assuming it takes some time to move)
           current_point = follow_point(closest_point)
@@ -53,7 +56,7 @@ def traverse_goal_points(start_point, goal_point_set):
         start_point = traverse_points(start_point, closest_goal_point, smoothed_path)
 
         # Remove the visited point from the set
-        goal_point_set.pop(closest_goal_point_index)
+        goal_point_set.pop(closest_goal_point_index) 
 
 
 if __name__ == '__main__':
