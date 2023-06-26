@@ -48,7 +48,6 @@ def traverse_goal_points(start_point, goal_point_set):
             print("task: failed to look up poistion")
 
     start_point = (x, y)
-    rospy.init_node('task1', anonymous=True)
 
     current_goal_point = start_point
     while goal_point_set:
