@@ -1,6 +1,6 @@
 import math
 from path_planning import RRT
-
+from go_to_point import follow_point
 def calculate_distance(point1, point2):
     x1, y1 = point1
     x2, y2 = point2
@@ -15,6 +15,7 @@ def traverse_points(start_point, end_point, point_set):
           closest_point = point_set[closest_point_index]
         
           # Move the robot towards the closest point (assuming it takes some time to move)
+          follow_point(closest_point)
           current_point = closest_point
           
           # Remove the visited point from the set

@@ -15,8 +15,8 @@ def follow_point(goal_point):
     listener = tf.TransformListener()
 
     rate = rospy.Rate(3)  # Rate of 1 Hz
-    goal_x = goal_point[0]
-    goal_y = goal_point[1]
+    goal_x = goal_point[0] *100
+    goal_y = goal_point[1] *100
     
     # To control the motor wheels speed
     motors = Motor_Control()
@@ -59,7 +59,7 @@ def follow_point(goal_point):
 
 if __name__ == '__main__':
     try:
-        goal_point = (70.0, 70.0)
+        goal_point = (0.7, 0.7)
         follow_point(goal_point)
     except rospy.ROSInterruptException:
         pass
