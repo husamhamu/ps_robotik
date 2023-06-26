@@ -4,6 +4,9 @@ import rospy
 import math
 from path_planning import RRT
 from go_to_point import follow_point
+import tf
+
+
 def calculate_distance(point1, point2):
     x1, y1 = point1
     x2, y2 = point2
@@ -20,9 +23,9 @@ def traverse_points(start_point, end_point, point_set):
           current_point = closest_point
         
           # Move the robot towards the closest point (assuming it takes some time to move)
-          print("traverse_points", closest_point)
+          print("traverse_points: closest_point ", closest_point)
           current_point = follow_point(closest_point)
-          
+
           # Remove the visited point from the set
           for _ in range(closest_point_index +1):
             point_set.pop(closest_point_index) #make sure to pop the previous points as well if there is any 
@@ -33,7 +36,10 @@ def traverse_points(start_point, end_point, point_set):
     return current_point
 
 def traverse_goal_points(start_point, goal_point_set):
-    
+    listener = tf.TransformListener()
+    (trans, rot) = listener.lookupTransform('/map', '/csi://0', rospy.Time(0))
+    x, y, z = trans
+    start_point = (x, y)
     rospy.init_node('task1', anonymous=True)
 
     current_goal_point = start_point
@@ -44,11 +50,11 @@ def traverse_goal_points(start_point, goal_point_set):
       
         # Move the robot towards the closest point (assuming it takes some time to move)
         current_goal_point = closest_goal_point
-        rospy.loginfo("task1: closest_point: " + str(closest_goal_point))
+        rospy.loginfo("task1: closest_point " + str(closest_goal_point))
         
         # Create an instance of the RRT class and run the algorithm
         arena_size = (1.4, 1.4)
-
+        print('traver_goal_points: start_point ', start_point)
         rrt = RRT(start_point, current_goal_point, 3, arena_size=arena_size)
         if rrt.extend_tree():
             # If a path is found, retrieve the path and plot it
