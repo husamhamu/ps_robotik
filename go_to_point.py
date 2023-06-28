@@ -8,6 +8,8 @@ import time
 from geometry_msgs.msg import Twist  #geometry_msgs/Twist
 from controller import PIDController, calculate_pid_controller
 from motor_control import Motor_Control
+from motors_waveshare import MotorControllerWaveshare
+
 
 def follow_point(goal_point):
     rospy.init_node('tf_listener_node', anonymous=True)
@@ -19,7 +21,7 @@ def follow_point(goal_point):
     goal_y = goal_point[1] *100
     
     # To control the motor wheels speed
-    motors = Motor_Control()
+    motor = MotorControllerWaveshare()
     # PID controller gains (adjust these based on your requirements)
     Kp = 1.0
     Ki = 0.0
@@ -45,8 +47,8 @@ def follow_point(goal_point):
             left_speed, right_speed = calculate_pid_controller(robot_x, robot_y, robot_orientation, goal_x, goal_y, 1.0)
             #rospy.loginfo("posereader: , : [left_speed: %.2f, right_speed: %.2f]", left_speed, right_speed) 
             #set speed of wheels
-            motors.set_speed(1, left_speed)
-            motors.set_speed(2, right_speed)
+            motor.set_speed(left_speed, right_speed)
+
             # Calculate the distance to the goal
             distance_to_goal = math.sqrt((goal_x - robot_x) ** 2 + (goal_y - robot_y) ** 2)
             if abs(distance_to_goal) < 2.0:

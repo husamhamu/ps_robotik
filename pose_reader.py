@@ -12,10 +12,10 @@ from motors_waveshare import MotorControllerWaveshare
 
 def tf_listener():
     rospy.init_node('tf_listener_node', anonymous=True)
-
+    #rospy.spin()
     listener = tf.TransformListener()
 
-    rate = rospy.Rate(1)  # Rate of 1 Hz
+    rate = rospy.Rate(8)  # Rate of 1 Hz
     goal_x = 70.0
     goal_y = 70.0
     motor = MotorControllerWaveshare()
