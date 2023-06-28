@@ -48,23 +48,16 @@ def follow_point(goal_point):
             print("follow_point(): robot_point", str((x, y)))
             left_speed, right_speed = calculate_pid_controller(robot_x, robot_y, robot_orientation, goal_x, goal_y, 1.0)
             #rospy.loginfo("posereader: , : [left_speed: %.2f, right_speed: %.2f]", left_speed, right_speed) 
+            print("follow_point(): left_speed, right_speed ", left_speed, right_speed)
             #set speed of wheels
             motor.set_speed(left_speed, right_speed)
 
             # Calculate the distance to the goal
-            distance_to_goal = math.sqrt((goal_x - robot_x) ** 2 + (goal_y - robot_y) ** 2)
-            if abs(distance_to_goal) < 2.0:
+            if left_speed == 0.0 and right_speed ==0.0:
                 return (robot_x/100, robot_y/100)
             
         except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException):
             rospy.logwarn("Failed to lookup transform for frame: /your_frame_name")
         
         rate.sleep()
-
-if __name__ == '__main__':
-    try:
-        goal_point = (0.7, 0.7)
-        follow_point(goal_point)
-    except rospy.ROSInterruptException:
-        pass
 

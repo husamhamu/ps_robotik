@@ -111,7 +111,7 @@ def calculate_pid_controller(robot_x, robot_y, robot_orientation, goal_x, goal_y
 
     # Calculate the distance to the goal
     distance_to_goal = math.sqrt((goal_x - robot_x) ** 2 + (goal_y - robot_y) ** 2)
-    if abs(distance_to_goal) < 4.0:
+    if abs(distance_to_goal) < 2.0:
       return 0.0, 0.0
 
     # PID controller gains (adjust these based on your requirements)
