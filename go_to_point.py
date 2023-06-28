@@ -44,6 +44,8 @@ def follow_point(goal_point):
             #determine the left and right speed of wheels
             robot_x, robot_y, robot_orientation = x*100, y*100, math.radians(yaw_degrees)
             #rospy.loginfo("Frame: /your_frame_name, Position: [robot_x: %.2f, robot_y: %.2f, robot_orientation: %.2f]", robot_x, robot_y,yaw_degrees)
+            print("follow_point(): goal_point", goal_point)
+            print("follow_point(): robot_point", str((x, y)))
             left_speed, right_speed = calculate_pid_controller(robot_x, robot_y, robot_orientation, goal_x, goal_y, 1.0)
             #rospy.loginfo("posereader: , : [left_speed: %.2f, right_speed: %.2f]", left_speed, right_speed) 
             #set speed of wheels

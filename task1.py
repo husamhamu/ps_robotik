@@ -14,6 +14,7 @@ def calculate_distance(point1, point2):
 
 def traverse_points(start_point, end_point, point_set):
     # current_point = start_point
+    point_set.pop(0) # to remove the start point from the point_set 
     while point_set:
         print("traverse_points: start_point", start_point)
         print("traverse_points: point_set", point_set)
