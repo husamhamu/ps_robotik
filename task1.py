@@ -6,13 +6,14 @@ from path_planning import RRT
 from go_to_point import follow_point
 import tf
 import time
+from motors_waveshare import MotorControllerWaveshare
 
 def calculate_distance(point1, point2):
     x1, y1 = point1
     x2, y2 = point2
     return math.sqrt((x2 - x1)**2 + (y2 - y1)**2)
 
-def traverse_points(start_point, end_point, point_set):
+def traverse_points(start_point, end_point, point_set, motor):
     # current_point = start_point
     point_set.pop(0) # to remove the start point from the point_set 
     while point_set:
@@ -27,7 +28,7 @@ def traverse_points(start_point, end_point, point_set):
         
           # Move the robot towards the closest point (assuming it takes some time to move)
           print("traverse_points: closest_point ", closest_point)
-          start_point = follow_point(closest_point)
+          start_point = follow_point(closest_point, motor=motor)
 
           # Remove the visited point from the set
           for _ in range(closest_point_index + 1):
@@ -40,6 +41,7 @@ def traverse_points(start_point, end_point, point_set):
     return start_point
 
 def traverse_goal_points(start_point, goal_point_set):
+    motor = MotorControllerWaveshare()
     x = 0
     rospy.init_node('tf_listener_node', anonymous=True)
     listener = tf.TransformListener()
@@ -77,7 +79,7 @@ def traverse_goal_points(start_point, goal_point_set):
             print('traverse_goal_points: smoothed path: ', smoothed_path)
         else:
             rospy.loginfo("task1: unable to find path!")
-        start_point = traverse_points(start_point, closest_goal_point, smoothed_path)
+        start_point = traverse_points(start_point, closest_goal_point, smoothed_path, motor)
 
         # Remove the visited point from the set
         goal_point_set.pop(closest_goal_point_index) 

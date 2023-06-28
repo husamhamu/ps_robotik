@@ -11,17 +11,17 @@ from motor_control import Motor_Control
 from motors_waveshare import MotorControllerWaveshare
 
 
-def follow_point(goal_point):
+def follow_point(goal_point, motor):
     rospy.init_node('tf_listener_node', anonymous=True)
 
     listener = tf.TransformListener()
 
-    rate = rospy.Rate(10)  # Rate of 1 Hz
+    rate = rospy.Rate(3)  # Rate of 1 Hz
     goal_x = goal_point[0] *100
     goal_y = goal_point[1] *100
     
     # To control the motor wheels speed
-    motor = MotorControllerWaveshare()
+    # motor = MotorControllerWaveshare()
     # PID controller gains (adjust these based on your requirements)
     Kp = 1.0
     Ki = 0.0
