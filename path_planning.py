@@ -115,28 +115,3 @@ class RRT:
     def plot_smoothed_path(self, path):
         smoothed_path = self.smooth_path(path)
         self.plot_path(smoothed_path)
-
-
-# Set the parameters for the RRT algorithm
-start = (0.2, 0.2)
-goal = (0.2, 1.2)
-num_obstacles = 5
-arena_size = (1.4, 1.4)
-
-# Create an instance of the RRT class and run the algorithm
-rrt = RRT(start, goal, num_obstacles, arena_size)
-
-if rrt.extend_tree():
-    # If a path is found, retrieve the path and plot it
-    path1 = rrt.find_path()
-    print(path1)
-    print(len(path1))
-    rrt.plot_path(path1)
-    print("Path found!")
-    smoothed_path  = rrt.smooth_path(path1)
-    print('smoothed_path', smoothed_path)
-    print('len(smoothed_path)', len(smoothed_path))
-    rrt.plot_smoothed_path(smoothed_path)
-else:
-    print("Unable to find a path.")
-
