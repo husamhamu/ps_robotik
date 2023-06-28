@@ -5,7 +5,7 @@ import math
 from path_planning import RRT
 from go_to_point import follow_point
 import tf
-
+import time
 
 def calculate_distance(point1, point2):
     x1, y1 = point1
@@ -47,9 +47,10 @@ def traverse_goal_points(start_point, goal_point_set):
             x, y, z = trans
         except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException):
             print("task: failed to look up poistion")
+            time.sleep(0.2)
 
     start_point = (x, y)
-
+    print('traverse_goal_points: start_point', start_point)
     current_goal_point = start_point
     while goal_point_set:
         distances = [calculate_distance(current_goal_point, point) for point in goal_point_set] #determine the closeset point from the set of points 
