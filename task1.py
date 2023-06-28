@@ -15,6 +15,8 @@ def calculate_distance(point1, point2):
 def traverse_points(start_point, end_point, point_set):
     # current_point = start_point
     while point_set:
+        print("traverse_points: start_point", start_point)
+        print("traverse_points: point_set", point_set)
         if len(point_set)>= 2:
           distances = [calculate_distance(start_point, point) for point in point_set[0:3]] #determine the closeset point from the first 2 points in the set
           closest_point_index = distances.index(min(distances))
