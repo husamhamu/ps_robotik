@@ -14,7 +14,7 @@ def follow_point(goal_point):
 
     listener = tf.TransformListener()
 
-    rate = rospy.Rate(3)  # Rate of 1 Hz
+    rate = rospy.Rate(10)  # Rate of 1 Hz
     goal_x = goal_point[0] *100
     goal_y = goal_point[1] *100
     
@@ -50,7 +50,7 @@ def follow_point(goal_point):
             # Calculate the distance to the goal
             distance_to_goal = math.sqrt((goal_x - robot_x) ** 2 + (goal_y - robot_y) ** 2)
             if abs(distance_to_goal) < 2.0:
-                return (robot_x, robot_y)
+                return (robot_x/100, robot_y/100)
             
         except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException):
             rospy.logwarn("Failed to lookup transform for frame: /your_frame_name")

@@ -27,11 +27,12 @@ def traverse_points(start_point, end_point, point_set):
           current_point = follow_point(closest_point)
 
           # Remove the visited point from the set
-          for _ in range(closest_point_index +1):
-            point_set.pop(closest_point_index) #make sure to pop the previous points as well if there is any 
+          for _ in range(closest_point_index + 1):
+            point_set.pop(0) #make sure to pop the previous points as well if there is any 
           
         else:
           current_point = end_point
+          current_point = follow_point(end_point)
           point_set.pop(0)
     return current_point
 
