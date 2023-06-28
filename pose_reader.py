@@ -8,16 +8,17 @@ import time
 from geometry_msgs.msg import Twist  #geometry_msgs/Twist
 from controller import PIDController, calculate_pid_controller
 from motor_control import Motor_Control
+from motors_waveshare import MotorControllerWaveshare
 
 def tf_listener():
     rospy.init_node('tf_listener_node', anonymous=True)
 
     listener = tf.TransformListener()
 
-    rate = rospy.Rate(10)  # Rate of 1 Hz
+    rate = rospy.Rate(1)  # Rate of 1 Hz
     goal_x = 70.0
     goal_y = 70.0
-    motors = Motor_Control()
+    motor = MotorControllerWaveshare()
     while not rospy.is_shutdown():
         try:
             (trans, rot) = listener.lookupTransform('/map', '/csi://0', rospy.Time(0))
@@ -38,8 +39,7 @@ def tf_listener():
             left_speed, right_speed = calculate_pid_controller(robot_x, robot_y, robot_orientation, goal_x, goal_y, 1.0)
             rospy.loginfo("posereader: , : [left_speed: %.2f, right_speed: %.2f]", left_speed, right_speed) 
             #set speed of wheels
-            motors.set_speed(1, left_speed)
-            motors.set_speed(2, right_speed)
+            motor.set_speed(left_speed, right_speed)
             
         except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException):
             rospy.logwarn("Failed to lookup transform for frame: /your_frame_name")

@@ -65,7 +65,6 @@ if __name__ == '__main__':
     
     try:
         ne = MotorControllerWaveshare()
-        ne.set_speed(0.2, 0.2)
     except rospy.ROSInterruptException: 
         pass
     rospy.spin()
