@@ -87,6 +87,7 @@ class RRT:
 
     def plot_path(self, path):
         # Plot the arena, obstacles, tree edges, and the resulting path
+        plt.figure()
         arena = plt.Rectangle((0, 0), self.arena_size[0], self.arena_size[1], fc='white')
         plt.gca().add_patch(arena)
         for obstacle in self.obstacles:
@@ -107,7 +108,7 @@ class RRT:
     def smooth_path(self, path):
         smoothed_path = [path[0]]  # Start with the first point in the path
         for point in path[1:]:
-            if np.linalg.norm(np.array(point) - np.array(smoothed_path[-1])) >= 0.2:
+            if np.linalg.norm(np.array(point) - np.array(smoothed_path[-1])) >= 0.4:
                 smoothed_path.append(point)
         smoothed_path.append(self.goal)  # Add the goal point to the smoothed path
         return smoothed_path

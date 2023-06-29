@@ -16,7 +16,7 @@ def follow_point(goal_point, motor):
 
     listener = tf.TransformListener()
 
-    rate = rospy.Rate(8)  # Rate of 1 Hz
+    rate = rospy.Rate(60)  # Rate of 1 Hz
     goal_x = goal_point[0] *100
     goal_y = goal_point[1] *100
     

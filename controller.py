@@ -43,9 +43,9 @@ def speed_sign(number):
 def limit_speeds(speed):
     # Limit the wheel speeds to the valid range [-1, 1]
     if speed>0:
-      speed = max(min(speed, 0.4), 0.1)
+      speed = max(min(speed, 0.4), 0.05)
     elif speed <0:
-      speed = max(min(speed, -0.1), -0.4)
+      speed = max(min(speed, -0.05), -0.4)
 
     return speed
 
@@ -95,7 +95,7 @@ def calculate_smallest_angle_difference(robot_orientation, goal_orienatiojn):
         raw_difference -= 360
     return raw_difference
 
-def calculate_pid_controller(robot_x, robot_y, robot_orientation, goal_x, goal_y, max_speed=0.4):
+def calculate_pid_controller(robot_x, robot_y, robot_orientation, goal_x, goal_y, max_speed=0.2):
     # Calculate the angle between the robot's orientation and the vector towards the goal
     #transofrm robot_orientation
     max_speed = 0.2
@@ -111,7 +111,7 @@ def calculate_pid_controller(robot_x, robot_y, robot_orientation, goal_x, goal_y
 
     # Calculate the distance to the goal
     distance_to_goal = math.sqrt((goal_x - robot_x) ** 2 + (goal_y - robot_y) ** 2)
-    if abs(distance_to_goal) < 2.0:
+    if abs(distance_to_goal) < 4.0:
       return 0.0, 0.0
 
     # PID controller gains (adjust these based on your requirements)

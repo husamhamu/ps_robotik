@@ -36,7 +36,7 @@ def traverse_points(start_point, end_point, point_set, motor):
           
         else:
         #   current_point = end_point
-          start_point = follow_point(end_point) #it is over we return start_point as a starting point for next goal point
+          start_point = follow_point(end_point, motor=motor) #it is over we return start_point as a starting point for next goal point
           point_set.pop(0)
     return start_point
 
