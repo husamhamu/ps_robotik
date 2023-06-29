@@ -62,7 +62,7 @@ def plot_points(robot_position, obstacle_position, points):
     plt.title('Points on a Circle')
     plt.legend()
     plt.grid(True)
-    plt.show()
+    plt.show(block=False)
 
 def add_circle_points(obstacle_position, smoothed_path):
     radius = 0.15
