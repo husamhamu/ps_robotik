@@ -16,7 +16,7 @@ def follow_point(goal_point, motor):
 
     listener = tf.TransformListener()
 
-    rate = rospy.Rate(60)  # Rate of 1 Hz
+    rate = rospy.Rate(10)  # Rate of 1 Hz
     goal_x = goal_point[0] *100
     goal_y = goal_point[1] *100
     
@@ -32,6 +32,11 @@ def follow_point(goal_point, motor):
             (trans, rot) = listener.lookupTransform('/map', '/csi://0', rospy.Time(0))
             x, y, z = trans
             # rospy.loginfo("Frame: /your_frame_name, Position: [x: %.2f, y: %.2f, z: %.2f]", x, y, z)
+            # Construct the transformation matrix
+            translation_matrix = tf.transformations.translation_matrix(trans)
+            rotation_matrix = tf.transformations.quaternion_matrix(rot)
+            transformation_matrix = np.dot(translation_matrix, rotation_matrix)
+            print("transformation_matrix ", transformation_matrix)
 
             roll, pitch, yaw = tfs.euler_from_quaternion(rot)
             roll_degrees = math.degrees(roll)
