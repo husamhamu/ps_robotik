@@ -68,8 +68,8 @@ def run(
         max_det=1000,  # maximum detections per image
         device='',  # cuda device, i.e. 0 or 0,1,2,3 or cpu
         view_img=False,  # show results
-        save_txt=False,  # save results to *.txt
-        save_conf=False,  # save confidences in --save-txt labels
+        save_txt=True,  # save results to *.txt
+        save_conf=True,  # save confidences in --save-txt labels
         save_crop=False,  # save cropped prediction boxes
         nosave=False,  # do not save images/videos
         classes=None,  # filter by class: --class 0, or --class 0 2 3
@@ -97,8 +97,9 @@ def run(
         source = check_file(source)  # download
 
     # Directories
-    save_dir = increment_path(Path(project) / name, exist_ok=exist_ok)  # increment run
-    (save_dir / 'labels' if save_txt else save_dir).mkdir(parents=True, exist_ok=True)  # make dir
+    #save_dir = increment_path(Path(project) / name, exist_ok=exist_ok)  # increment run
+    #save_dir.mkdir(parents=True, exist_ok=True)  # make dir
+    #save_dir = name 
 
     # Load model
     device = select_device(device)
@@ -152,7 +153,7 @@ def run(
 
             p = Path(p)  # to Path
             save_path = str(save_dir / p.name)  # im.jpg
-            txt_path = str(save_dir / 'labels' / p.stem) + ('' if dataset.mode == 'image' else f'_{frame}')  # im.txt
+            txt_path = str(save_dir / p.stem) + ('' if dataset.mode == 'image' else f'_{frame}')  # im.txt
             s += '%gx%g ' % im.shape[2:]  # print string
             gn = torch.tensor(im0.shape)[[1, 0, 1, 0]]  # normalization gain whwh
             imc = im0.copy() if save_crop else im0  # for save_crop
@@ -261,7 +262,7 @@ def parse_opt():
     print_args(vars(opt))
     return opt
 
-def image_saver():
+def image_saver(filename):
     # Convert the image message to an OpenCV image
     print('hello from image_saver')
     width = last_image_msg.width
@@ -269,9 +270,10 @@ def image_saver():
     channels =3 
     img_data = np.frombuffer(last_image_msg.data, dtype=np.uint8).reshape((height, width, channels))
     # Save the image to a temporary folder
-    filename = "/home/weilin/workspace/catkin_ws/src/image_saver/temp/image{}.jpg".format(rospy.Time.now().to_sec())
+    #filename = "/home/weilin/workspace/catkin_ws/src/pose_reader/temp/image{}.jpg".format(rospy.Time.now().to_sec())
     cv2.imwrite(filename, img_data)
     print("Image saved: {}".format(filename))
+    run(source=filename)
 
 def image_callback(msg):
     # Convert the image message to an OpenCV image
@@ -282,7 +284,7 @@ def callback(msg):
     message_data = msg.data
     print('data recieved: ',message_data)
     # save image
-    image_saver()
+    image_saver(message_data)
 
 
 
@@ -300,4 +302,9 @@ def main(opt):
 
 if __name__ == '__main__':
     opt = parse_opt()
+    # Directories
+    name = 'Versuch'
+    global save_dir
+    save_dir = increment_path(Path('Versuchen') / name, exist_ok=False)  # increment run
+    save_dir.mkdir(parents=True, exist_ok=True)  # make dir
     main(opt)
