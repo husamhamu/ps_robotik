@@ -37,20 +37,19 @@ def calculate_edge_length(image):
 
     # Calculate the total length of the contours
     if len(contours) == 0:
-      return 0
+        return 0
     else:
-      # Sort the contours based on their bounding box height
-      sorted_contours = sorted(contours, key=lambda c: cv2.boundingRect(c)[3], reverse=True)
+        # Sort the contours based on their bounding box height
+        sorted_contours = sorted(contours, key=lambda c: cv2.boundingRect(c)[3], reverse=True)
 
-      # Get the two contours with the largest height
-      top_two_contours = sorted_contours[:2]
+        # Get the two contours with the largest height
+        top_two_contours = sorted_contours[:2]
 
-      # Calculate the average height of the contours
-      average_height = sum(cv2.boundingRect(c)[3] for c in top_two_contours) / len(top_two_contours)
+        # Calculate the average height of the contours
+        average_height = sum(cv2.boundingRect(c)[3] for c in top_two_contours) / len(top_two_contours)
 
-    plt.imshow(edges)
-    plt.axis('off')  # Disable axis
-    plt.show(block=False)
+        cv2.imshow(edges)
+        cv2.waitKey(1)
 
     return average_height
 
@@ -96,10 +95,12 @@ def determine_position(angle, horizontal_projection, camera_height):
     return x, y, z
 
 
-def estimate_position(cropped_image, camera_position, camera_orientation, box_center_x):
+def estimate_position(cropped_image, taransformation_matrix, box_center_x):
 
     #estimate averatge height of edges
     average_height_pixels = calculate_edge_length(cropped_image)
+    if average_height_pixels == 0.0:
+        return 0.0, 0.0, 0.0
     print('average_height_pixels', average_height_pixels)
 
     # Calculate the position of the object with respect to the arena coordinates
@@ -157,15 +158,15 @@ def cube_maping(label_path, taransformation_matrix):
             
             # Crop the image based on the calculated coordinates
             cropped_image = image[y:bottom, x:right]
-            plt.imshow(cropped_image)
-            plt.axis('off')  # Disable axis
-            plt.show(block=False)
+            cv2.imshow(cropped_image)
+            cv2.waitKey(1)
 
             #estimate position of each object
-            x, y, z = estimate_position(cropped_image, taransformation_matrix, box_center_x)
-            obstacle_positions.append((x, y))
-            print('arena_center_x', x)
-            print('arena_center_y', y)
+            x, y, z = estimate_position(cropped_image, taransformation_matrix, box_center_x*image_width)
+            if not (x==0.0 and y==0.0 and z==0.0):
+                obstacle_positions.append((x, y))
+                print('arena_center_x', x)
+                print('arena_center_y', y)
 
     plot_points(obstacle_positions)
 
