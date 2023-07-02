@@ -72,7 +72,9 @@ def get_angle_to_image_center(pixel_x):
     delta_x = pixel_x - image_center_x
 
     # Calculate the angle of entropy (using the arctangent function)
-    angle_to_image_center = angle_radians * delta_x/640
+    focal_length = 887.411967
+    ratio = delta_x / focal_length
+    angle_to_image_center = math.atan(ratio)
 
     return angle_to_image_center
 
@@ -89,9 +91,9 @@ def determine_position(angle, horizontal_projection, camera_height):
     # Calculating sine values
     sine_value = math.sin(angle)
 
-    x=horizontal_projection * cosine_value
+    x=horizontal_projection * sine_value
     y=camera_height + 1.5
-    z=horizontal_projection * sine_value
+    z=horizontal_projection * cosine_value
     return x, y, z
 
 
@@ -169,20 +171,3 @@ def cube_maping(label_path, taransformation_matrix):
                 print('arena_center_y', y)
 
     plot_points(obstacle_positions)
-
-# Camera position and orientation
-# camera_position = (0.2, 0.2)  # Example camera position in meters (x, y)
-# camera_orientation = -math.radians(45)  # Example camera orientation
-
-# arena_size = (1.4, 1.4)  # Size of the arena in meters (width, height)
-
-# # Load the input image
-# image = cv2.imread('/content/20230609-094436.jpg')
-
-# # Define a list of bounding boxes [x, y, width, height]
-
-# bounding_boxes = [[576, 401, 617 - 576, 434 - 401], [450, 572, 584 - 450, 708 - 584]]
-
-# cube_maping(image, bounding_boxes, camera_position, camera_orientation, arena_size)
-
-# cv2.destroyAllWindows()
