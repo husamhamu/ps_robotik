@@ -198,4 +198,4 @@ def cube_maping(label_path, taransformation_matrix):
 
     # plot_points(obstacle_positions)
     plot_obstacle(obstacle_labels, obstacle_positions)
-    return obstacle_positions
+    return obstacle_positions, obstacle_labels

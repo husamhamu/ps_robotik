@@ -25,7 +25,7 @@ def is_collision_free(path, obstacles):
                 return False
     return True
 
-def traverse_points(start_point, end_point, smoothed_path, path, motor, pub, previous_obstacles):
+def traverse_points(start_point, end_point, smoothed_path, path, motor, pub, previous_obstacles, previous_labels):
     smoothed_path.pop(0) # to remove the start point from the point_set 
     while smoothed_path:
         print("traverse_points: start_point", start_point)
@@ -44,11 +44,12 @@ def traverse_points(start_point, end_point, smoothed_path, path, motor, pub, pre
                 smoothed_path.pop(0) #make sure to pop the previous points as well if there is any 
 
 
-            new_obstacles = run_detect(pub, transformation_matrix)
+            new_obstacles, new_labels = run_detect(pub, transformation_matrix)
             # Check if new obstacles are there and update them if so 
             if len(new_obstacles) != 0:
-                updated_obstacles = update_obstacles(previous_obstacles, new_obstacles, start_point, robot_orientation, fov=160)
+                updated_obstacles, updated_labels = update_obstacles(previous_obstacles, new_obstacles, previous_labels, new_labels, start_point, robot_orientation, fov=160)
                 previous_obstacles = updated_obstacles # Dont forget to update 
+                previous_labels = updated_labels
 
                 # Check if path is still valid with the new update
                 collision_free = is_collision_free(path, updated_obstacles)
@@ -58,12 +59,12 @@ def traverse_points(start_point, end_point, smoothed_path, path, motor, pub, pre
                 
 
         else:
-            #   current_point = end_point
+            #current_point = end_point
             start_point, transformation_matrix, robot_orientation = follow_point(end_point, motor=motor) #it is over we return start_point as a starting point for next goal point
-            new_obstacles = run_detect(pub, transformation_matrix)
-            updated_obstacles = update_obstacles(previous_obstacles, new_obstacles, start_point, robot_orientation, fov=160)
+            new_obstacles, new_labels = run_detect(pub, transformation_matrix)
+            updated_obstacles, updated_labels = update_obstacles(previous_obstacles, new_obstacles, previous_labels, new_labels, start_point, robot_orientation, fov=160)
             smoothed_path.pop(0)
-    return start_point, updated_obstacles
+    return start_point, updated_obstacles, updated_labels
 
 def robot_position(listener):
     x = 0
@@ -110,7 +111,7 @@ def traverse_goal_points(start_point, goal_point_set):
     # Get robot position 
     start_point, transformation_matrix = robot_position(listener)
     # Get Obstacle positions
-    obstacle_positions = run_detect(pub, transformation_matrix)
+    obstacle_positions, obstacle_labels = run_detect(pub, transformation_matrix)
     
     while goal_point_set:
         distances = [calculate_distance(start_point, point) for point in goal_point_set] #determine the closeset point from the set of points 
@@ -125,7 +126,7 @@ def traverse_goal_points(start_point, goal_point_set):
         path, smoothed_path = find_path(start_point, closest_goal_point, obstacle_positions)
 
         # Traverse the points to the goal point and obtain updated start point and obstacle positions
-        start_point, obstacle_positions = traverse_points(start_point, closest_goal_point, smoothed_path, path, motor, pub, obstacle_positions)
+        start_point, obstacle_positions, obstacle_labels = traverse_points(start_point, closest_goal_point, smoothed_path, path, motor, pub, obstacle_positions, obstacle_labels)
 
         # Remove the visited point from the set
         goal_point_set.pop(closest_goal_point_index) 

@@ -57,15 +57,16 @@ def run_detect(pub, transformation_matrix):
     timeout = 5  # Timeout in seconds
     interval = 0.2  # Check interval in seconds
     obstacle_positions = []
+    obstacle_labels = []
     while True:
         if os.path.isfile(label_path):
             print("image2.txt exists in the directory.")
-            obstacle_positions = cube_maping(label_path, transformation_matrix)
-            return obstacle_positions
+            obstacle_positions, obstacle_labels = cube_maping(label_path, transformation_matrix)
+            return obstacle_positions, obstacle_labels
 
         elapsed_time = time.time() - start_time
         if elapsed_time >= timeout:
             print("Timed out. Moving on.")
-            return obstacle_positions
+            return obstacle_positions, obstacle_labels
 
         time.sleep(interval)
