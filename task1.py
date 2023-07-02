@@ -21,7 +21,7 @@ def is_collision_free(path, obstacles):
     # Check if the path from a node to a point is collision-free
     for point in path:
         for obstacle in obstacles:
-            if np.linalg.norm(np.array(point) - np.array(obstacle)) < 0.18 # Make sure the point is at least 0.15m away from obstacls
+            if np.linalg.norm(np.array(point) - np.array(obstacle)) < 0.18: # Make sure the point is at least 0.15m away from obstacls
                 return False
     return True
 
