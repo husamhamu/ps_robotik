@@ -119,12 +119,12 @@ def estimate_position(cropped_image, taransformation_matrix, box_center_x, avera
     x, y, z = determine_position(angle, horizontal_projection, camera_height)
 
     # Transform point to arena coordinates
-    # homgenous_point = [x, y, z, 1]
-    # homgenous_transformed = np.dot(taransformation_matrix, homgenous_point)
-    # x, y, z, w = homgenous_transformed
-    # arena_x = x / w
-    # arena_y = y / w
-    # arena_z = z / w
+    homgenous_point = [x, y, z, 1]
+    homgenous_transformed = np.dot(taransformation_matrix, homgenous_point)
+    x, y, z, w = homgenous_transformed
+    arena_x = x / w
+    arena_y = y / w
+    arena_z = z / w
 
     return x, y, z
 
@@ -150,7 +150,7 @@ def plot_obstacle(obstacle_labels, obstacle_positions):
         ax.text(x, y, label, ha='center', va='bottom')  # Add the label as text
 
     ax.set_xlabel('X')
-    ax.set_ylabel('Z')
+    ax.set_ylabel('Y')
     plt.show(block=False)
 
 def cube_maping(label_path, taransformation_matrix):

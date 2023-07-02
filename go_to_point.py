@@ -63,7 +63,7 @@ def follow_point(goal_point, motor):
 
             # If robot is close enough to goal point
             if left_speed == 0.0 and right_speed ==0.0:
-                return (robot_x/100, robot_y/100)
+                return (robot_x/100, robot_y/100), transformation_matrix, robot_orientation
             
         except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException):
             rospy.logwarn("Failed to lookup transform for frame: /your_frame_name")

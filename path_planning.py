@@ -4,7 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 class RRT:
-    def __init__(self, start, goal, obstacles, distance_from_obstacle =0.15, num_obstacles=0, arena_size=(1.4, 1.4), obstacle_size=0.1, step_size=0.1, max_iter=1000):
+    def __init__(self, start, goal, obstacles, distance_from_obstacle =0.15, num_obstacles=0, arena_size=(1.45, 1.45), obstacle_size=0.1, step_size=0.1, max_iter=10000):
         self.start = start
         self.goal = goal
         self.num_obstacles = num_obstacles

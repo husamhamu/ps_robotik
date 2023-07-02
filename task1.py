@@ -10,38 +10,60 @@ from motors_waveshare import MotorControllerWaveshare
 import numpy as np
 from std_msgs.msg import String
 from yolo_detection import run_detect
+from update_obstacles_approach import update_obstacles
 
 def calculate_distance(point1, point2):
     x1, y1 = point1
     x2, y2 = point2
     return math.sqrt((x2 - x1)**2 + (y2 - y1)**2)
 
-def traverse_points(start_point, end_point, point_set, motor):
-    # current_point = start_point
-    point_set.pop(0) # to remove the start point from the point_set 
-    while point_set:
-        print("traverse_points: start_point", start_point)
-        print("traverse_points: point_set", point_set)
-        if len(point_set)>= 2:
-          distances = [calculate_distance(start_point, point) for point in point_set[0:3]] #determine the closeset point from the first 2 points in the set
-          closest_point_index = distances.index(min(distances))
-          closest_point = point_set[closest_point_index]
-        
-        #   current_point = closest_point
-        
-          # Move the robot towards the closest point (assuming it takes some time to move)
-          print("traverse_points: closest_point ", closest_point)
-          start_point = follow_point(closest_point, motor=motor)
+def is_collision_free(path, obstacles):
+    # Check if the path from a node to a point is collision-free
+    for point in path:
+        for obstacle in obstacles:
+            if np.linalg.norm(np.array(point) - np.array(obstacle)) < 0.18 # Make sure the point is at least 0.15m away from obstacls
+                return False
+    return True
 
-          # Remove the visited point from the set
-          for _ in range(closest_point_index + 1):
-            point_set.pop(0) #make sure to pop the previous points as well if there is any 
-          
+def traverse_points(start_point, end_point, smoothed_path, path, motor, pub, previous_obstacles):
+    smoothed_path.pop(0) # to remove the start point from the point_set 
+    while smoothed_path:
+        print("traverse_points: start_point", start_point)
+        print("traverse_points: point_set", smoothed_path)
+        if len(smoothed_path)>= 2:
+            distances = [calculate_distance(start_point, point) for point in smoothed_path[0:3]] #determine the closeset point from the first 2 points in the set
+            closest_point_index = distances.index(min(distances))
+            closest_point = smoothed_path[closest_point_index]
+
+            # Move the robot towards the closest point (assuming it takes some time to move)
+            print("traverse_points: closest_point ", closest_point)
+            start_point, transformation_matrix, robot_orientation = follow_point(closest_point, motor=motor)
+
+            # Remove the visited point from the set
+            for _ in range(closest_point_index + 1):
+                smoothed_path.pop(0) #make sure to pop the previous points as well if there is any 
+
+
+            new_obstacles = run_detect(pub, transformation_matrix)
+            # Check if new obstacles are there and update them if so 
+            if len(new_obstacles) != 0:
+                updated_obstacles = update_obstacles(previous_obstacles, new_obstacles, start_point, robot_orientation, fov=160)
+                previous_obstacles = updated_obstacles # Dont forget to update 
+
+                # Check if path is still valid with the new update
+                collision_free = is_collision_free(path, updated_obstacles)
+                if not collision_free:
+                    path, smoothed_path = find_path(start_point, end_point, updated_obstacles) #if path not valid update it
+                    smoothed_path.pop(0) # to remove the start point from the point set
+                
+
         else:
-        #   current_point = end_point
-          start_point = follow_point(end_point, motor=motor) #it is over we return start_point as a starting point for next goal point
-          point_set.pop(0)
-    return start_point
+            #   current_point = end_point
+            start_point, transformation_matrix, robot_orientation = follow_point(end_point, motor=motor) #it is over we return start_point as a starting point for next goal point
+            new_obstacles = run_detect(pub, transformation_matrix)
+            updated_obstacles = update_obstacles(previous_obstacles, new_obstacles, start_point, robot_orientation, fov=160)
+            smoothed_path.pop(0)
+    return start_point, updated_obstacles
 
 def robot_position(listener):
     x = 0
@@ -64,8 +86,7 @@ def robot_position(listener):
 
 def find_path(start_point, current_goal_point, obstacles):
     # Create an instance of the RRT class and run the algorithm
-    arena_size = (1.4, 1.4)
-    rrt = RRT(start_point, current_goal_point, obstacles)
+    rrt = RRT(start_point, current_goal_point, obstacles, distance_from_obstacle=0.18)
     if rrt.extend_tree():
         # If a path is found, retrieve the path and plot it
         path1 = rrt.find_path()
@@ -103,8 +124,8 @@ def traverse_goal_points(start_point, goal_point_set):
         print('traverse_goal_points: closest_goal_point', closest_goal_point)
         path, smoothed_path = find_path(start_point, closest_goal_point, obstacle_positions)
 
-        # Traverse the points to the goal point
-        start_point = traverse_points(start_point, closest_goal_point, smoothed_path, motor)
+        # Traverse the points to the goal point and obtain updated start point and obstacle positions
+        start_point, obstacle_positions = traverse_points(start_point, closest_goal_point, smoothed_path, path, motor, pub, obstacle_positions)
 
         # Remove the visited point from the set
         goal_point_set.pop(closest_goal_point_index) 
