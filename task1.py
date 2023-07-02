@@ -7,6 +7,9 @@ from go_to_point import follow_point
 import tf
 import time
 from motors_waveshare import MotorControllerWaveshare
+import numpy as np
+from std_msgs.msg import String
+from yolo_detection import run_detect
 
 def calculate_distance(point1, point2):
     x1, y1 = point1
@@ -40,11 +43,8 @@ def traverse_points(start_point, end_point, point_set, motor):
           point_set.pop(0)
     return start_point
 
-def traverse_goal_points(start_point, goal_point_set):
-    motor = MotorControllerWaveshare()
+def robot_position(listener):
     x = 0
-    rospy.init_node('tf_listener_node', anonymous=True)
-    listener = tf.TransformListener()
     rate = rospy.Rate(10)
     while x==0:  
         try:
@@ -53,32 +53,57 @@ def traverse_goal_points(start_point, goal_point_set):
         except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException):
             print("task: failed to look up poistion")
             time.sleep(0.2)
-
     start_point = (x, y)
-    start_point
+
+    # Construct the transformation matrix
+    translation_matrix = tf.transformations.translation_matrix(trans)
+    rotation_matrix = tf.transformations.quaternion_matrix(rot)
+    transformation_matrix = np.dot(translation_matrix, rotation_matrix)
+
+    return start_point, transformation_matrix
+
+def find_path(start_point, current_goal_point, obstacles):
+    # Create an instance of the RRT class and run the algorithm
+    arena_size = (1.4, 1.4)
+    rrt = RRT(start_point, current_goal_point, obstacles)
+    if rrt.extend_tree():
+        # If a path is found, retrieve the path and plot it
+        path1 = rrt.find_path()
+        print('find_path(): path1 ', path1)
+        rrt.plot_path(path1)
+        smoothed_path  = rrt.smooth_path(path1)
+        print('find_path(): smoothed_path', smoothed_path)
+        rrt.plot_smoothed_path(smoothed_path)
+        
+        return path1, smoothed_path
+    else:
+        print("Unable to find a path.")
+        return None, None
+
+def traverse_goal_points(start_point, goal_point_set):
+    motor = MotorControllerWaveshare()
+    rospy.init_node('tf_listener_node', anonymous=True)
+    listener = tf.TransformListener()
+    pub = rospy.Publisher('string_message_topoic', String, queue_size=10)
+
+    # Get robot position 
+    start_point, transformation_matrix = robot_position(listener)
+    # Get Obstacle positions
+    obstacle_positions = run_detect(pub, transformation_matrix)
+    
     while goal_point_set:
         distances = [calculate_distance(start_point, point) for point in goal_point_set] #determine the closeset point from the set of points 
         closest_goal_point_index = distances.index(min(distances))
         closest_goal_point = goal_point_set[closest_goal_point_index]
       
-        # Move the robot towards the closest point (assuming it takes some time to move)
-        # current_goal_point = closest_goal_point
-        # rospy.loginfo("task1: closest_point " + str(closest_goal_point))
+        # Move the robot towards the closest point 
         
-        # Create an instance of the RRT class and run the algorithm
-        arena_size = (1.4, 1.4)
+        # Find the path to the closest goal point
         print('traverse_goal_points: start_point ', start_point)
         print('traverse_goal_points: closest_goal_point', closest_goal_point)
-        rrt = RRT(start_point, closest_goal_point, 3, arena_size=arena_size)
-        if rrt.extend_tree():
-            # If a path is found, retrieve the path and plot it
-            path1 = rrt.find_path()
-            #smooth path to less points
-            smoothed_path  = rrt.smooth_path(path1)
-            rrt.plot_smoothed_path(smoothed_path)
-            print('traverse_goal_points: smoothed path: ', smoothed_path)
-        else:
-            rospy.loginfo("task1: unable to find path!")
+        path, smoothed_path = find_path(start_point, closest_goal_point, obstacle_positions)
+
+        # Traverse the points to the goal point
         start_point = traverse_points(start_point, closest_goal_point, smoothed_path, motor)
 
         # Remove the visited point from the set

@@ -97,12 +97,13 @@ def determine_position(angle, horizontal_projection, camera_height):
     return x, y, z
 
 
-def estimate_position(cropped_image, taransformation_matrix, box_center_x):
+def estimate_position(cropped_image, taransformation_matrix, box_center_x, average_height_pixels=0):
 
     #estimate averatge height of edges
-    average_height_pixels = calculate_edge_length(cropped_image)
-    if average_height_pixels == 0.0:
-        return 0.0, 0.0, 0.0
+    if average_height_pixels ==0:
+        average_height_pixels = calculate_edge_length(cropped_image)
+        if average_height_pixels == 0.0:
+            return 0.0, 0.0, 0.0
     print('average_height_pixels', average_height_pixels)
 
     # Calculate the position of the object with respect to the arena coordinates
@@ -117,7 +118,14 @@ def estimate_position(cropped_image, taransformation_matrix, box_center_x):
     angle = get_angle_to_image_center(box_center_x)
     x, y, z = determine_position(angle, horizontal_projection, camera_height)
 
-    TODO: transform the points to arena coordiante
+    # Transform point to arena coordinates
+    # homgenous_point = [x, y, z, 1]
+    # homgenous_transformed = np.dot(taransformation_matrix, homgenous_point)
+    # x, y, z, w = homgenous_transformed
+    # arena_x = x / w
+    # arena_y = y / w
+    # arena_z = z / w
+
     return x, y, z
 
 def plot_points(points):
@@ -127,12 +135,27 @@ def plot_points(points):
     plt.ylim(0, 1.4)
     plt.xlabel('X')
     plt.ylabel('Y')
-    plt.title('Points on a Circle')
+    plt.title('Obstacle points')
     plt.legend()
     plt.grid(True)
     plt.show(block=False)
 
+def plot_obstacle(obstacle_labels, obstacle_positions):
+    fig, ax = plt.subplots()
+
+    # Plot the obstacles
+    for label, position in zip(obstacle_labels, obstacle_positions):
+        x, y = position
+        ax.plot(x, y, 'bo')  # Plot as blue circles
+        ax.text(x, y, label, ha='center', va='bottom')  # Add the label as text
+
+    ax.set_xlabel('X')
+    ax.set_ylabel('Z')
+    plt.show(block=False)
+
 def cube_maping(label_path, taransformation_matrix):
+    labels = ["ball", "redcube", "bluecube", "yellowcube", "purplecube", "orangecube", "greencube"]
+    obstacle_labels = []
     obstacle_positions = []
     # read bounding box
     with open(label_path, 'r') as f:
@@ -144,7 +167,7 @@ def cube_maping(label_path, taransformation_matrix):
         box_center_x, box_center_y, width, height = map(float, data[1:5])
         confidence_level = float(data[5])
         
-        if confidence_level > 0.6:
+        if confidence_level > 0.5:
             image_name = os.path.basename(label_path)
             image_name = image_name.replace('.txt', '.jpg')
             image_path =  os.path.join('/home/weilin/workspace/catkin_ws/src/pose_reader/temp', image_name)
@@ -164,10 +187,15 @@ def cube_maping(label_path, taransformation_matrix):
             cv2.waitKey(1)
 
             #estimate position of each object
-            x, y, z = estimate_position(cropped_image, taransformation_matrix, box_center_x*image_width)
+            if label_id !=0:
+                x, y, z = estimate_position(cropped_image, taransformation_matrix, box_center_x*image_width)
+            else:
+                _, cropped_image_height, _ = cropped_image.shape
+                x, y, z = estimate_position(cropped_image, taransformation_matrix, box_center_x*image_width, cropped_image_height*0.7) #if ball use 0.7 of bounding box as height pixles 
             if not (x==0.0 and y==0.0 and z==0.0):
                 obstacle_positions.append((x, y))
-                print('arena_center_x', x)
-                print('arena_center_y', y)
+                obstacle_labels.append(labels[label_id])
 
-    plot_points(obstacle_positions)
+    # plot_points(obstacle_positions)
+    plot_obstacle(obstacle_labels, obstacle_positions)
+    return obstacle_positions

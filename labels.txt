@@ -1,0 +1,7 @@
+ball
+redcube
+bluecube
+yellowcube
+purplecube
+orangecube
+greencube

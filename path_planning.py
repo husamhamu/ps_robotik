@@ -4,7 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 class RRT:
-    def __init__(self, start, goal, num_obstacles, arena_size, obstacle_size=0.1, step_size=0.1, max_iter=1000):
+    def __init__(self, start, goal, obstacles, distance_from_obstacle =0.15, num_obstacles=0, arena_size=(1.4, 1.4), obstacle_size=0.1, step_size=0.1, max_iter=1000):
         self.start = start
         self.goal = goal
         self.num_obstacles = num_obstacles
@@ -13,7 +13,9 @@ class RRT:
         self.step_size = step_size
         self.max_iter = max_iter
         self.tree = {tuple(start): None}  # Initialize the tree with the start node
-        self.obstacles = self.generate_obstacles()
+        # self.obstacles = self.generate_obstacles()
+        self.obstacles = obstacles
+        self.distance_from_obstacle = distance_from_obstacle
 
     def generate_obstacles(self):
         obstacles = []
@@ -34,7 +36,7 @@ class RRT:
             valid = True
             # Check if the generated point is at least 0.1 distance from any obstacle
             for obstacle in self.obstacles:
-                if np.linalg.norm(np.array(point) - np.array(obstacle)) < 0.1:
+                if np.linalg.norm(np.array(point) - np.array(obstacle)) < self.distance_from_obstacle: # Make sure the generated point is at least 0.15m away from obstacls
                     valid = False
                     break
             if valid:
@@ -56,7 +58,7 @@ class RRT:
     def is_collision_free(self, from_node, to_point):
         # Check if the path from a node to a point is collision-free
         for obstacle in self.obstacles:
-            if np.linalg.norm(np.array(to_point) - np.array(obstacle)) < 0.1: # Make sure the point is at least 0.2m away from obstacls
+            if np.linalg.norm(np.array(to_point) - np.array(obstacle)) < self.distance_from_obstacle: # Make sure the point is at least 0.15m away from obstacls
                 return False
         return True
 
