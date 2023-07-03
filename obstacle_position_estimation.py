@@ -192,6 +192,7 @@ def cube_maping(label_path, taransformation_matrix):
             else:
                 _, cropped_image_height, _ = cropped_image.shape
                 x, y, z = estimate_position(cropped_image, taransformation_matrix, box_center_x*image_width, cropped_image_height*0.7) #if ball use 0.7 of bounding box as height pixles 
+            x, y, z = x/100, y/100, z/100 # Convert them to meters
             if not (x==0.0 and y==0.0 and z==0.0):
                 obstacle_positions.append((x, y))
                 obstacle_labels.append(labels[label_id])

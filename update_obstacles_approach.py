@@ -34,6 +34,7 @@ def plot_obstacles(previous_obstacles, new_obstacles, updated_obstacles, updated
 
 def update_obstacles(previous_obstacles, new_obstacles, previous_labels, new_labels, camera_position, camera_orientation, fov=160):
     # Calculate FOV boundaries
+    camera_orientation = math.degrees(camera_orientation)
     fov_half_angle = math.radians(fov / 2)
     fov_left_boundary = math.radians(camera_orientation) - fov_half_angle
     fov_right_boundary = math.radians(camera_orientation) + fov_half_angle
