@@ -42,7 +42,7 @@ def follow_point(goal_point, motor):
             translation_matrix = tf.transformations.translation_matrix(trans)
             rotation_matrix = tf.transformations.quaternion_matrix(rot)
             transformation_matrix = np.dot(translation_matrix, rotation_matrix)
-            print("transformation_matrix ", transformation_matrix)
+            #print("transformation_matrix ", transformation_matrix)
 
             # Read angle values
             roll, pitch, yaw = tfs.euler_from_quaternion(rot)

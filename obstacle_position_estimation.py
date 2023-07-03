@@ -6,7 +6,6 @@ import numpy as np
 
 import matplotlib.pyplot as plt
 import numpy as np
-from scipy.spatial import Voronoi, voronoi_plot_2d
 import os 
 
 def calculate_edge_length(image):

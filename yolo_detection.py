@@ -34,7 +34,7 @@ def get_versuch_path(folder_path):
 
         # Find the path to the latest "Versuch" folder
         latest_versuch_number = sorted_numbers[0]
-        latest_versuch_folder = os.path.join(folder_path, f"Versuch{latest_versuch_number}")
+        latest_versuch_folder = os.path.join(folder_path, "Versuch{}".format(latest_versuch_number))
         return latest_versuch_folder
 
 def run_detect(pub, transformation_matrix):

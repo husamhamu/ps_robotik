@@ -27,6 +27,7 @@ def is_collision_free(path, obstacles):
 
 def traverse_points(start_point, end_point, smoothed_path, path, motor, pub, previous_obstacles, previous_labels):
     smoothed_path.pop(0) # to remove the start point from the point_set 
+    updated = False
     while smoothed_path:
         print("traverse_points: start_point", start_point)
         print("traverse_points: point_set", smoothed_path)
@@ -47,6 +48,7 @@ def traverse_points(start_point, end_point, smoothed_path, path, motor, pub, pre
             new_obstacles, new_labels = run_detect(pub, transformation_matrix)
             # Check if new obstacles are there and update them if so 
             if len(new_obstacles) != 0:
+                updated = True
                 updated_obstacles, updated_labels = update_obstacles(previous_obstacles, new_obstacles, previous_labels, new_labels, start_point, robot_orientation, fov=160)
                 previous_obstacles = updated_obstacles # Dont forget to update 
                 previous_labels = updated_labels
@@ -62,9 +64,17 @@ def traverse_points(start_point, end_point, smoothed_path, path, motor, pub, pre
             #current_point = end_point
             start_point, transformation_matrix, robot_orientation = follow_point(end_point, motor=motor) #it is over we return start_point as a starting point for next goal point
             new_obstacles, new_labels = run_detect(pub, transformation_matrix)
-            updated_obstacles, updated_labels = update_obstacles(previous_obstacles, new_obstacles, previous_labels, new_labels, start_point, robot_orientation, fov=160)
+                        # Check if new obstacles are there and update them if so 
+            if len(new_obstacles) != 0:
+                updated = True
+                updated_obstacles, updated_labels = update_obstacles(previous_obstacles, new_obstacles, previous_labels, new_labels, start_point, robot_orientation, fov=160)
+                previous_obstacles = updated_obstacles # Dont forget to update 
+                previous_labels = updated_labels
             smoothed_path.pop(0)
-    return start_point, updated_obstacles, updated_labels
+    if updated:
+        return start_point, updated_obstacles, updated_labels
+    else:
+        return start_point, previous_obstacles, previous_labels
 
 def robot_position(listener):
     x = 0
@@ -91,8 +101,8 @@ def find_path(start_point, current_goal_point, obstacles):
     if rrt.extend_tree():
         # If a path is found, retrieve the path and plot it
         path1 = rrt.find_path()
-        print('find_path(): path1 ', path1)
-        rrt.plot_path(path1)
+        #print('find_path(): path1 ', path1)
+        # rrt.plot_path(path1)
         smoothed_path  = rrt.smooth_path(path1)
         print('find_path(): smoothed_path', smoothed_path)
         rrt.plot_smoothed_path(smoothed_path)
