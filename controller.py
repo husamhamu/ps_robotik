@@ -113,7 +113,7 @@ def calculate_pid_controller(robot_x, robot_y, robot_orientation, goal_x, goal_y
     # Calculate the distance to the goal
     distance_to_goal = math.sqrt((goal_x - robot_x) ** 2 + (goal_y - robot_y) ** 2)
     if abs(distance_to_goal) < 4.0:
-      return 0.0, 0.0
+      return 0.0, 0.0, robot_orientation
 
     # PID controller gains (adjust these based on your requirements)
     Kp = 1.0
@@ -148,5 +148,5 @@ def calculate_pid_controller(robot_x, robot_y, robot_orientation, goal_x, goal_y
     limited_left_speed = limit_speeds(left_speed)
     limited_right_speed = limit_speeds(right_speed)
 
-    return limited_left_speed, limited_right_speed
+    return limited_left_speed, limited_right_speed, robot_orientation
 

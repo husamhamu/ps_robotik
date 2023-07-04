@@ -76,6 +76,7 @@ def traverse_points(start_point, end_point, smoothed_path, path, motor, pub, pre
     else:
         return start_point, previous_obstacles, previous_labels
 
+
 def robot_position(listener):
     x = 0
     rate = rospy.Rate(10)
@@ -102,7 +103,7 @@ def find_path(start_point, current_goal_point, obstacles):
         # If a path is found, retrieve the path and plot it
         path1 = rrt.find_path()
         #print('find_path(): path1 ', path1)
-        # rrt.plot_path(path1)
+        #rrt.plot_path(path1)
         smoothed_path  = rrt.smooth_path(path1)
         print('find_path(): smoothed_path', smoothed_path)
         rrt.plot_smoothed_path(smoothed_path)

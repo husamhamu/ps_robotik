@@ -35,7 +35,7 @@ def follow_point(goal_point, motor):
         try:
             # Look up camera pose with respect to arena
             (trans, rot) = listener.lookupTransform('/map', '/csi://0', rospy.Time(0))
-            x, y, z = trans
+            x, y, x = trans
             # rospy.loginfo("Frame: /your_frame_name, Position: [x: %.2f, y: %.2f, z: %.2f]", x, y, z)
 
             # Construct the transformation matrix
@@ -55,7 +55,7 @@ def follow_point(goal_point, motor):
             robot_x, robot_y, robot_orientation = x*100, y*100, math.radians(yaw_degrees)
             #print("follow_point(): goal_point", goal_point)
             #print("follow_point(): robot_point", str((x, y)))
-            left_speed, right_speed = calculate_pid_controller(robot_x, robot_y, robot_orientation, goal_x, goal_y, 1.0)
+            left_speed, right_speed, robot_orientation = calculate_pid_controller(robot_x, robot_y, robot_orientation, goal_x, goal_y, 1.0)
             #print("follow_point(): left_speed, right_speed ", left_speed, right_speed)
 
             #set speed of wheels

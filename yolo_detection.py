@@ -54,7 +54,7 @@ def run_detect(pub, transformation_matrix):
 
     #wait for the label path 
     start_time = time.time()
-    timeout = 5  # Timeout in seconds
+    timeout = 15  # Timeout in seconds
     interval = 0.2  # Check interval in seconds
     obstacle_positions = []
     obstacle_labels = []
