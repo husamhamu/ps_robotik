@@ -100,7 +100,7 @@ def calculate_pid_controller(robot_x, robot_y, robot_orientation, goal_x, goal_y
     # Calculate the angle between the robot's orientation and the vector towards the goal
     #transofrm robot_orientation
     max_speed = 0.2
-    robot_orientation = transform_angle(math.degrees(robot_orientation))
+    # robot_orientation = transform_angle(math.degrees(robot_orientation))
 
     angle_to_goal = math.atan2(goal_y - robot_y, goal_x - robot_x)
 
