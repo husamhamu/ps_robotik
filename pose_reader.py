@@ -53,6 +53,9 @@ def tf_listener():
 
             left_speed, right_speed, robot_orientation = calculate_pid_controller(robot_x, robot_y, robot_orientation, goal_x, goal_y, 1.0)
 
+            # #set speed of wheels
+            motor.set_speed(left_speed, right_speed)
+
             # If robot is close enough to goal point
             if left_speed == 0.0 and right_speed ==0.0:
                 time.sleep(1)

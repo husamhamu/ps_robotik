@@ -49,24 +49,14 @@ def limit_speeds(speed):
 
     return speed
 
-#transforms an angle that starts form the positive y axis
-# def transform_angle(angle):
-#     transformed_angle = (angle + 90) % 360
-#     if transformed_angle > 180:
-#         transformed_angle -= 360
-#     transformed_angle = math.radians(transformed_angle)
-#     return transformed_angle
-
-#transforms an angle that starts form the negative y axis
 def transform_angle(angle):
-    normalized_angle = (angle + 180) % 360  # Normalize to range 0-360
-    transformed_angle = (normalized_angle + 90) % 360  # Shift by -90 degrees
-    if transformed_angle < -180:
-        transformed_angle += 360
-    elif transformed_angle > 180:
+    transformed_angle = (angle + 90) % 360
+    if transformed_angle > 180:
         transformed_angle -= 360
+    #print('transformed_angle', transformed_angle)
     transformed_angle = math.radians(transformed_angle)
     return transformed_angle
+#transforms an angle that starts form the negative y axis
 
 def left_or_right(robot_orientation, goal_orienatiojn):
     normalized_angle1 = robot_orientation % 360
@@ -96,31 +86,41 @@ def calculate_smallest_angle_difference(robot_orientation, goal_orienatiojn):
         raw_difference -= 360
     return raw_difference
 
-def calculate_pid_controller(robot_x, robot_y, robot_orientation, goal_x, goal_y, max_speed=0.2):
+def update_position(x, y, angle):
+    backward_distance = 6.0
+    delta_x = -backward_distance * math.cos(angle)
+    delta_y = -backward_distance * math.sin(angle)
+    new_x = x + delta_x
+    new_y = y + delta_y
+    return new_x, new_y
+
+def calculate_pid_controller(robot_x, robot_y, robot_orientation, goal_x, goal_y, pid_controller, max_speed=0.2):
     # Calculate the angle between the robot's orientation and the vector towards the goal
     #transofrm robot_orientation
-    max_speed = 0.2
-    # robot_orientation = transform_angle(math.degrees(robot_orientation))
+    robot_orientation = transform_angle(math.degrees(robot_orientation))
+    #To update the position of the robot by moving it 8cm backwards based on its orientation
+    #robot_x, robot_y = update_position(robot_x, robot_y, robot_orientation)
 
     angle_to_goal = math.atan2(goal_y - robot_y, goal_x - robot_x)
 
     # Calculate the orientation error
     # orientation_error = angle_to_goal - robot_orientation
-    orientation_error = math.radians(abs(calculate_smallest_angle_difference(math.degrees(robot_orientation), math.degrees(angle_to_goal))))
+    smallest_angle = calculate_smallest_angle_difference(math.degrees(robot_orientation), math.degrees(angle_to_goal))
+    orientation_error = math.radians(abs(smallest_angle))
     #scale down the orientation error 
     orientation_error = (orientation_error - (-3.14)) / (3.14 - (-3.14)) * (0.2 - (-0.2)) + (-0.2)
 
     # Calculate the distance to the goal
     distance_to_goal = math.sqrt((goal_x - robot_x) ** 2 + (goal_y - robot_y) ** 2)
-    if abs(distance_to_goal) < 4.0:
+    if abs(distance_to_goal) < 6.0:
       return 0.0, 0.0, robot_orientation
 
     # PID controller gains (adjust these based on your requirements)
-    Kp = 1.0
-    Ki = 0.0
-    Kd = 0.0
+    # Kp = 1.0
+    # Ki = 0.0
+    # Kd = 0.0
 
-    pid_controller = PIDController(Kp, Ki, Kd)
+    # pid_controller = PIDController(Kp, Ki, Kd)
 
     # Calculate the control signal based on the orientation error
     control_signal = pid_controller.calculate_control_signal(orientation_error, dt=0.2)
@@ -128,16 +128,26 @@ def calculate_pid_controller(robot_x, robot_y, robot_orientation, goal_x, goal_y
     # Calculate the desired robot speed based on the distance to the goal
     desired_speed = min(distance_to_goal, max_speed)
     #print("control_signal", control_signal)
+
+
     # Calculate the left and right wheel speeds
     if robot_orientation != angle_to_goal:
       motor_id = left_or_right(math.degrees(robot_orientation), math.degrees(angle_to_goal))
+      if smallest_angle > 20:
+         if motor_id == "left":
+            left_speed = 0.0
+            right_speed = desired_speed
+         elif motor_id == "right":
+            left_speed = desired_speed
+            right_speed = 0.0
       #print("motor_id", motor_id)
-      if motor_id == "left":
-        left_speed = desired_speed - control_signal
-        right_speed = desired_speed
-      elif motor_id == "right":
-        left_speed = desired_speed
-        right_speed = desired_speed - control_signal
+      else:
+        if motor_id == "left":
+          left_speed = desired_speed - control_signal
+          right_speed = desired_speed
+        elif motor_id == "right":
+          left_speed = desired_speed
+          right_speed = desired_speed - control_signal
     else:
       left_speed = desired_speed - control_signal
       right_speed = desired_speed + control_signal

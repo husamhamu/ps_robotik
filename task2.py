@@ -9,6 +9,9 @@ from motors_waveshare import MotorControllerWaveshare
 import math
 import numpy as np
 import matplotlib.pyplot as plt
+from std_msgs.msg import String
+from yolo_detection import run_detect
+from update_obstacles_approach import update_obstacles
 
 def clockwise_points(obstacle_position, robot_position, radius, num_points):
     theta = np.linspace(0, 2*np.pi, num_points, endpoint=False)
@@ -69,47 +72,49 @@ def add_circle_points(obstacle_position, smoothed_path):
     num_points = 5
 
     # Calculate distances between obstacle_position and each point in smoothed_path
+    distances = []
     distances = [calculate_distance(obstacle_position, point) for point in smoothed_path]
 
     # Filter distances to exclude points that are within the radius
     distances = [distance for distance in distances if distance > 0.15]
 
     # Check if there is a point with at least 0.15 distance from obstacle_position
-    if min(distances, default=None) is not None:
-        # If such a point exists, find the index of the closest point in smoothed_path
-        closest_point_index = distances.index(min(distances))
+    if len(distances) >0:
+        if min(distances):
+            # If such a point exists, find the index of the closest point in smoothed_path
+            closest_point_index = distances.index(min(distances))
 
-        # Remove the points after the closest_point_index
-        for _ in range(closest_point_index+1, len(smoothed_path)):
-            smoothed_path.pop(-1)
+            # Remove the points after the closest_point_index
+            for _ in range(closest_point_index+1, len(smoothed_path)):
+                smoothed_path.pop(-1)
 
-        # Get the robot_position from the smoothed_path
-        robot_position = smoothed_path[closest_point_index]
+            # Get the robot_position from the smoothed_path
+            robot_position = smoothed_path[closest_point_index]
 
-        # Generate additional points in a clockwise direction around obstacle_position
-        points = clockwise_points(obstacle_position, robot_position, radius, num_points)
+            # Generate additional points in a clockwise direction around obstacle_position
+            points = clockwise_points(obstacle_position, robot_position, radius, num_points)
 
-        # Append the additional points to the smoothed_path
-        smoothed_path = smoothed_path + points
+            # Append the additional points to the smoothed_path
+            smoothed_path = smoothed_path + points
 
-        # Plot the robot_position, obstacle_position, and smoothed_path
-        plot_points(robot_position, obstacle_position, smoothed_path)
+            # Plot the robot_position, obstacle_position, and smoothed_path
+            plot_points(robot_position, obstacle_position, smoothed_path)
 
-        return smoothed_path
-    else:
-        # If no point with at least 0.15 distance exists, find the farthest point
-        distances = [calculate_distance(obstacle_position, point) for point in smoothed_path]
-        closest_point_index = distances.index(max(distances))
+            return smoothed_path
+        else:
+            # If no point with at least 0.15 distance exists, find the farthest point
+            distances = [calculate_distance(obstacle_position, point) for point in smoothed_path]
+            closest_point_index = distances.index(max(distances))
 
-        # Get the robot_position from the smoothed_path
-        robot_position = smoothed_path[closest_point_index]
+            # Get the robot_position from the smoothed_path
+            robot_position = smoothed_path[closest_point_index]
 
-        # Generate additional points in a clockwise direction around obstacle_position
-        points = clockwise_points(obstacle_position, robot_position, radius, num_points)
+            # Generate additional points in a clockwise direction around obstacle_position
+            points = clockwise_points(obstacle_position, robot_position, radius, num_points)
 
-        # Plot the robot_position, obstacle_position, and points
-        plot_points(robot_position, obstacle_position, points)
-
+            # Plot the robot_position, obstacle_position, and points
+            plot_points(robot_position, obstacle_position, points)
+    
         return points
     
 def calculate_distance(point1, point2):
@@ -237,7 +242,7 @@ def traverse_goal_points(start_point, goal_point_set):
         path, smoothed_path = find_path(start_point, closest_goal_point, obstacle_positions)
 
         # Traverse the points to the goal point and obtain updated start point and obstacle positions
-        smoothed_path = add_circle_points(obstacle_positions, smoothed_path) # Adding points in a clockwise direction around obstacle_position
+        smoothed_path = add_circle_points(closest_goal_point, smoothed_path) # Adding points in a clockwise direction around obstacle_position
         start_point, obstacle_positions, obstacle_labels = traverse_points(start_point, closest_goal_point, smoothed_path, path, motor, pub, obstacle_positions, obstacle_labels)
 
         # Remove the visited point from the set
