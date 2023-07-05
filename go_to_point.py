@@ -33,34 +33,34 @@ def follow_point(goal_point, motor):
     pid_controller = PIDController(Kp, Ki, Kd)
     while not rospy.is_shutdown():
         try:
-            # Look up camera pose with respect to arena
-            (trans, rot) = listener.lookupTransform('/csi://0', '/map', rospy.Time(0))           
-            translation_matrix = tf.transformations.translation_matrix(trans)
-            rotation_matrix = tf.transformations.quaternion_matrix(rot)
-            #build inverse
-            R_inv = rotation_matrix.transpose()
-            t_inv = -np.dot(R_inv, translation_matrix)
-            x, y, z = t_inv
-            T_inv = np.eye(4)
-            T_inv[:3, :3] = R_inv
-            T_inv[:3, 3] = t_inv
-            #build 
-            # Create a quaternion from the rotation matrix
-            quaternion = tf.transformations.quaternion_from_matrix(R_inv)
-            roll, pitch, yaw = tf.transformations.euler_from_quaternion(quaternion)
+            # # Look up camera pose with respect to arena
+            # (trans, rot) = listener.lookupTransform('/csi://0', '/map', rospy.Time(0))           
+            # translation_matrix = tf.transformations.translation_matrix(trans)
+            # rotation_matrix = tf.transformations.quaternion_matrix(rot)
+            # #build inverse
+            # R_inv = rotation_matrix.transpose()
+            # t_inv = -np.dot(R_inv, translation_matrix)
+            # x, y, z = t_inv
+            # T_inv = np.eye(4)
+            # T_inv[:3, :3] = R_inv
+            # T_inv[:3, 3] = t_inv
+            # #build 
+            # # Create a quaternion from the rotation matrix
+            # quaternion = tf.transformations.quaternion_from_matrix(R_inv)
+            # roll, pitch, yaw = tf.transformations.euler_from_quaternion(quaternion)
 
-            #determine the left and right speed of wheels
-            robot_x, robot_y, robot_orientation = x*100, y*100, yaw
+            # #determine the left and right speed of wheels
+            # robot_x, robot_y, robot_orientation = x*100, y*100, yaw
 
-            left_speed, right_speed, robot_orientation = calculate_pid_controller(robot_x, robot_y, robot_orientation, goal_x, goal_y, 1.0)
+            # left_speed, right_speed, robot_orientation = calculate_pid_controller(robot_x, robot_y, robot_orientation, goal_x, goal_y, 1.0)
             
-            #set speed of wheels
-            motor.set_speed(left_speed, right_speed)
+            # #set speed of wheels
+            # motor.set_speed(left_speed, right_speed)
 
-            # If robot is close enough to goal point
-            if left_speed == 0.0 and right_speed ==0.0:
-                time.sleep(1)
-                return (robot_x/100, robot_y/100), T_inv, yaw
+            # # If robot is close enough to goal point
+            # if left_speed == 0.0 and right_speed ==0.0:
+            #     time.sleep(1)
+            #     return (robot_x/100, robot_y/100), T_inv, yaw
 
 
             # Look up camera pose with respect to arena
