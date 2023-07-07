@@ -14,6 +14,7 @@ from std_msgs.msg import String
 from yolo_detection import run_detect
 from update_obstacles_approach import update_obstacles
 from plot_results import plot_path, plot_obstacle_with_labels
+import sys
 
 def clockwise_points(obstacle_position, robot_position, radius, num_points):
     theta = np.linspace(0, 2*np.pi, num_points, endpoint=False)
@@ -70,7 +71,7 @@ def plot_points(robot_position, obstacle_position, points):
     plt.show(block=False)
 
 
-def add_circle_points(obstacle_position, smoothed_path):
+def add_circle_points(obstacle_position, smoothed_path, closest_goal_point_label):
     radius = 0.19
     num_points = 5
 
@@ -96,7 +97,10 @@ def add_circle_points(obstacle_position, smoothed_path):
             robot_position = smoothed_path[closest_point_index]
 
             # Generate additional points in a clockwise direction around obstacle_position
-            points = clockwise_points(obstacle_position, robot_position, radius, num_points)
+            if closest_goal_point_label=="red":
+                points = clockwise_points(obstacle_position, robot_position, radius, num_points)
+            else:
+                points = anti_clockwise_points(obstacle_position, robot_position, radius, num_points)
 
             # Append the additional points to the smoothed_path
             smoothed_path = smoothed_path + points
@@ -114,7 +118,10 @@ def add_circle_points(obstacle_position, smoothed_path):
             robot_position = smoothed_path[closest_point_index]
 
             # Generate additional points in a clockwise direction around obstacle_position
-            points = clockwise_points(obstacle_position, robot_position, radius, num_points)
+            if closest_goal_point_label=="red":
+                points = clockwise_points(obstacle_position, robot_position, radius, num_points)
+            else:
+                points = anti_clockwise_points(obstacle_position, robot_position, radius, num_points)
 
             # Plot the robot_position, obstacle_position, and points
             plot_points(robot_position, obstacle_position, points)
@@ -250,7 +257,7 @@ def go_to_start_goal(start_point, goal_point, obstacle_positions, motor):
         planned_path.append(closest_point)
         driven_path.append(start_point)
 
-def traverse_goal_points(start_point, goal_point_set):
+def traverse_goal_points(start_point, goal_point_set, labels):
     motor = MotorControllerWaveshare()
     rospy.init_node('tf_listener_node', anonymous=True)
     listener = tf.TransformListener()
@@ -266,7 +273,7 @@ def traverse_goal_points(start_point, goal_point_set):
         distances = [calculate_distance(start_point, point) for point in goal_point_set] #determine the closeset point from the set of points 
         closest_goal_point_index = distances.index(min(distances))
         closest_goal_point = goal_point_set[closest_goal_point_index]
-      
+        closest_goal_point_label = labels[closest_goal_point_index]
         # Move the robot towards the closest point 
         
         # Find the path to the closest goal point
@@ -276,7 +283,7 @@ def traverse_goal_points(start_point, goal_point_set):
 
         # Traverse the points to the goal point and obtain updated start point and obstacle positions
         smoothed_path.pop(-1) #remove the goal point
-        smoothed_path = add_circle_points(closest_goal_point, smoothed_path) # Adding points in a clockwise direction around obstacle_position
+        smoothed_path = add_circle_points(closest_goal_point, smoothed_path, closest_goal_point_label) # Adding points in a clockwise direction around obstacle_position
         start_point, obstacle_positions, obstacle_labels = traverse_points(start_point, closest_goal_point, smoothed_path, path, motor, pub, obstacle_positions, obstacle_labels)
         
         #append the goal point as an obstacle once you are done
@@ -284,7 +291,7 @@ def traverse_goal_points(start_point, goal_point_set):
         obstacle_labels.append('goal_point')
         # Remove the visited point from the set
         goal_point_set.pop(closest_goal_point_index) 
-        
+        labels.pop(closest_goal_point_index)
     #save planned and driven path
     plot_path(planned_path, title='Planned path')
     plot_path(driven_path, title='Driven path')
@@ -299,5 +306,28 @@ if __name__ == '__main__':
 
     start_point = (2.2, 0.2)
     goal_point_set = [(0.4, 0.5), (0.4, 1.0), (0.8, 0.5), (0.8, 1.0), (1.2, 0.5), (1.2, 1.0)]
-    traverse_goal_points(start_point, goal_point_set)
+
+    # Retrieve the command-line arguments
+    args = rospy.myargv(argv=sys.argv)
+
+    # Check if the correct number of arguments is provided
+    if len(args) != 19:
+        rospy.logerr("Incorrect number of arguments. Please provide 6 points with their labels.")
+        sys.exit(1)
+
+    # Extract the values from the command-line arguments
+    points = []
+    labels = []
+    for i in range(1, 19, 3):
+        point_x = float(args[i])
+        point_y = float(args[i+1])
+        label = args[i+2]
+        points.append((point_x, point_y))
+        labels.append(label)
+
+    # Your node logic goes here
+    for point in points:
+        x, y, label = point
+        rospy.loginfo(f"Point: ({x}, {y}), Label: {label}")
+    traverse_goal_points(start_point, points, labels)
     plt.close("all")
