@@ -16,11 +16,10 @@ def precpective_transform(x_cam, y_cam):
     # x_cam, y_cam = 682.49984, 464.50008  #input here
 
     # we set four blocks in the coordinate, and record how they look like in camera
-    # the coordinate of four points in camera coordinate system
-    pts1 = np.float32([[169, 556], [495, 431], [926, 427], [1205, 569]])
+    pts1 = np.float32([[188, 584], [990, 579], [979, 368],[503, 379]])
 
     # the coordinate of four points in real world coordinate system
-    pts2 = np.float32([[-30, 30], [-30, 70], [20, 70], [20, 30]])
+    pts2 = np.float32([[-20, 20], [10, 20], [40, 90],[-30, 80]])
 
     # perspection matrix
     matrix = cv2.getPerspectiveTransform(pts1, pts2)
@@ -57,6 +56,7 @@ def estimate_position(taransformation_matrix, box_center_x, box_center_y, averag
     arena_z = z / w
     print('arena_x', arena_x)
     print('arena_y', arena_y)
+    print()
     return arena_x, arena_y, arena_z
 
 def plot_points(points):
@@ -85,7 +85,7 @@ def plot_obstacle(obstacle_labels, obstacle_positions):
     ax.set_ylabel('Y')
     plt.show(block=False)
 
-def cube_maping(label_path, taransformation_matrix):
+def cube_maping(label_path, taransformation_matrix, task="task1"):
     labels = ["ball", "redcube", "bluecube", "yellowcube", "purplecube", "orangecube", "greencube"]
     obstacle_labels = []
     obstacle_positions = []
@@ -99,22 +99,23 @@ def cube_maping(label_path, taransformation_matrix):
         box_center_x, box_center_y, width, height = map(float, data[1:5])
         confidence_level = float(data[5])
         
-        if confidence_level > 0.5:
-            print('label: ', labels[label_id])
-            image_name = os.path.basename(label_path)
-            image_name = image_name.replace('.txt', '.jpg')
-            image_path =  os.path.join('/home/weilin/workspace/catkin_ws/src/pose_reader/temp', image_name)
-            image = cv2.imread(image_path)
+        if task == "task2" and labels[label_id] !="ball":
+            continue
             
-            image_height, image_width = image.shape[:2]
-
-            image_height, image_width = image.shape[:2]
+        if confidence_level > 0.6:
+            # print('label: ', labels[label_id])
+            # image_name = os.path.basename(label_path)
+            # image_name = image_name.replace('.txt', '.jpg')
+            # image_path =  os.path.join('/home/weilin/workspace/catkin_ws/src/pose_reader/temp', image_name)
+            # image = cv2.imread(image_path)
+            
+            image_height, image_width = 1280, 720
             box_center_x = box_center_x* image_width
             box_center_y = box_center_y* image_height
             
             x, y, z = estimate_position(taransformation_matrix, box_center_x, box_center_y)
 
-            if not (x==0.0 and y==0.0 and z==0.0):
+            if not (x==0.0 and y==0.0 and z==0.0) and not (x>1.5 or y>1.5):
                 obstacle_positions.append((x, y))
                 obstacle_labels.append(labels[label_id])
 

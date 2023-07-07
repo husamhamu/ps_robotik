@@ -133,21 +133,13 @@ def calculate_pid_controller(robot_x, robot_y, robot_orientation, goal_x, goal_y
     # Calculate the left and right wheel speeds
     if robot_orientation != angle_to_goal:
       motor_id = left_or_right(math.degrees(robot_orientation), math.degrees(angle_to_goal))
-      if smallest_angle > 20:
-         if motor_id == "left":
-            left_speed = 0.0
-            right_speed = desired_speed
-         elif motor_id == "right":
-            left_speed = desired_speed
-            right_speed = 0.0
-      #print("motor_id", motor_id)
-      else:
-        if motor_id == "left":
-          left_speed = desired_speed - control_signal
-          right_speed = desired_speed
-        elif motor_id == "right":
-          left_speed = desired_speed
-          right_speed = desired_speed - control_signal
+      if motor_id == "left":
+        left_speed = desired_speed - control_signal
+        right_speed = desired_speed
+      elif motor_id == "right":
+        left_speed = desired_speed
+        right_speed = desired_speed - control_signal
+
     else:
       left_speed = desired_speed - control_signal
       right_speed = desired_speed + control_signal

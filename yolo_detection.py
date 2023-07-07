@@ -37,7 +37,7 @@ def get_versuch_path(folder_path):
         latest_versuch_folder = os.path.join(folder_path, "Versuch{}".format(latest_versuch_number))
         return latest_versuch_folder
 
-def run_detect(pub, transformation_matrix):
+def run_detect(pub, transformation_matrix, task="task1"):
     msg = String()
     filename = "/home/weilin/workspace/catkin_ws/src/pose_reader/temp/image{}.jpg".format(rospy.Time.now().to_sec()) #Replace with "temp" folder path
     msg.data = filename
@@ -54,14 +54,14 @@ def run_detect(pub, transformation_matrix):
 
     #wait for the label path 
     start_time = time.time()
-    timeout = 15  # Timeout in seconds
+    timeout = 4  # Timeout in seconds
     interval = 0.2  # Check interval in seconds
     obstacle_positions = []
     obstacle_labels = []
     while True:
         if os.path.isfile(label_path):
             print("image2.txt exists in the directory.")
-            obstacle_positions, obstacle_labels = cube_maping(label_path, transformation_matrix)
+            obstacle_positions, obstacle_labels = cube_maping(label_path, transformation_matrix, task= task)
             return obstacle_positions, obstacle_labels
 
         elapsed_time = time.time() - start_time

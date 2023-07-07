@@ -7,9 +7,13 @@ import matplotlib.pyplot as plt
 
 def plot_obstacles(previous_obstacles, new_obstacles, updated_obstacles, updated_labels):
     # Extract x and y coordinates from the obstacles lists
-    prev_x, prev_y = zip(*previous_obstacles)
-    new_x, new_y = zip(*new_obstacles)
-    updated_x, updated_y = zip(*updated_obstacles)
+    prev_x, prev_y, new_x, new_y, updated_x, updated_y  = [], [],[],[],[],[]
+    if len(previous_obstacles)>0:
+        prev_x, prev_y = zip(*previous_obstacles)
+    if len(new_obstacles)>0:
+        new_x, new_y = zip(*new_obstacles)
+    if len(updated_obstacles)>0:
+        updated_x, updated_y = zip(*updated_obstacles)
 
     # Create a new figure
     plt.figure()
@@ -25,14 +29,19 @@ def plot_obstacles(previous_obstacles, new_obstacles, updated_obstacles, updated
     # Add labels and legend
     plt.xlabel('X')
     plt.ylabel('Y')
+    plt.xlim(0, 1.4)
+    plt.ylim(0, 1.4)
     plt.legend()
 
     # Show the plot
     plt.show(block=False)
 
+def calculate_distance(point1, point2):
+    x1, y1 = point1
+    x2, y2 = point2
+    return math.sqrt((x2 - x1)**2 + (y2 - y1)**2)
 
-
-def update_obstacles(previous_obstacles, new_obstacles, previous_labels, new_labels, camera_position, camera_orientation, fov=160):
+def update_obstacles(previous_obstacles, new_obstacles, previous_labels, new_labels, camera_position, camera_orientation=0.2, fov=160, task="task1"):
     # Calculate FOV boundaries
     camera_orientation = math.degrees(camera_orientation)
     fov_half_angle = math.radians(fov / 2)
@@ -60,13 +69,14 @@ def update_obstacles(previous_obstacles, new_obstacles, previous_labels, new_lab
 
     obstacles_in_fov_used = []
     new_obstacles_used = []
+    previous_obstacles_used = []
     # Step 6: Check if the number of obstacles in FOV is less than the number of new obstacles
     # Step 7-12: Update obstacle positions for close obstacles
     for new_obstacle, new_label in zip(new_obstacles, new_labels):
-        min_distance = float('inf')
+        min_distance = 0.3
         closest_obstacle = None
         closest_label = None
-        for obstacle in obstacles_in_fov:
+        for obstacle in previous_obstacles:
             distance = math.sqrt((new_obstacle[0] - obstacle[0]) ** 2 + (new_obstacle[1] - obstacle[1]) ** 2)
             if distance < min_distance:
                 min_distance = distance
@@ -74,21 +84,25 @@ def update_obstacles(previous_obstacles, new_obstacles, previous_labels, new_lab
                 closest_label = label
 
         # Step 8: Calculate the updated position as the average for close obstacles
-        if closest_obstacle is not None:
-            updated_position = ((new_obstacle[0] + closest_obstacle[0]) / 2, (new_obstacle[1] + closest_obstacle[1]) / 2) # Step 8: Calculate the updated position as the average
+        if closest_obstacle is not None and closest_obstacle not in previous_obstacles_used:
+            if calculate_distance(camera_position, closest_obstacle) < 0.6:
+                updated_position = new_obstacle
+            else:
+                updated_position = ((new_obstacle[0] + closest_obstacle[0]) / 2, (new_obstacle[1] + closest_obstacle[1]) / 2) # Step 8: Calculate the updated position as the average
             obstacles_in_fov.remove(closest_obstacle) # Step 9: Remove the closest obstacle to avoid duplicate updating
             # labels_in_fov.remove(closest_label)
             updated_obstacles.append(updated_position) # Step 10: Append the updated obstacle position to the updated list
             updated_labels.append(new_label)
             #add to used 
+            previous_obstacles_used.append(closest_obstacle)
             obstacles_in_fov_used.append(closest_obstacle)
             new_obstacles_used.append(new_obstacle)
 
     # Step 13: Append the remaining new obstacles and previosu obstacles as updated obstacles that did not find a match 
     updated_obstacles.extend(obstacle for obstacle in new_obstacles if obstacle not in new_obstacles_used)
     updated_labels.extend(label for label, obstacle in zip(new_labels, new_obstacles) if obstacle not in new_obstacles_used) #do you want to add previosu points that are in FOV but not used?
-    updated_obstacles.extend(obstacle for obstacle in previous_obstacles if obstacle not in obstacles_in_fov_used)
-    updated_labels.extend(label for label, obstacle in zip(previous_labels, previous_obstacles) if obstacle not in obstacles_in_fov_used)
+    updated_obstacles.extend(obstacle for obstacle in previous_obstacles if obstacle not in previous_obstacles_used)
+    updated_labels.extend(label for label, obstacle in zip(previous_labels, previous_obstacles) if obstacle not in previous_obstacles_used)
 
     plot_obstacles(previous_obstacles, copy_new_obstacles, updated_obstacles, updated_labels)
     return updated_obstacles, updated_labels
