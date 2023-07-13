@@ -33,10 +33,6 @@ def precpective_transform(x_cam, y_cam):
     #transformed_point = cv2.perspectiveTransform(point, matrix)
     x_real = transformed_points[0][0][0]
     z_real = transformed_points[0][0][1]
-    # print
-    # for i in range(transformed_points.shape[0]):
-    #     print("Transformed {}: ({}, {})".format(chr(ord('A') + i), transformed_points[i][0][0], transformed_points[i][0][1]))
-    print(x_real,z_real)
     y_real = 10
 
     x_real, y_real, z_real = x_real/100, y_real/100, z_real/100
@@ -101,24 +97,24 @@ def cube_maping(label_path, taransformation_matrix, task="task1"):
         
         if task == "task2" and labels[label_id] !="ball":
             continue
+        
+        # put a threshold on confidence level
+        if confidence_level > 0.55:
+            print('label: ', labels[label_id])
             
-        if confidence_level > 0.6:
-            # print('label: ', labels[label_id])
-            # image_name = os.path.basename(label_path)
-            # image_name = image_name.replace('.txt', '.jpg')
-            # image_path =  os.path.join('/home/weilin/workspace/catkin_ws/src/pose_reader/temp', image_name)
-            # image = cv2.imread(image_path)
-            
-            image_height, image_width = 1280, 720
+            # determine object center in the image
+            image_height, image_width = 720, 1280
             box_center_x = box_center_x* image_width
             box_center_y = box_center_y* image_height
             
+            # estimate the position of the object
             x, y, z = estimate_position(taransformation_matrix, box_center_x, box_center_y)
 
+            # if position if valid
             if not (x==0.0 and y==0.0 and z==0.0) and not (x>1.5 or y>1.5):
                 obstacle_positions.append((x, y))
                 obstacle_labels.append(labels[label_id])
 
     # plot_points(obstacle_positions)
-    plot_obstacle(obstacle_labels, obstacle_positions)
+    # plot_obstacle(obstacle_labels, obstacle_positions)
     return obstacle_positions, obstacle_labels

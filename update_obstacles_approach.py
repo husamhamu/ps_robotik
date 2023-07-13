@@ -14,13 +14,12 @@ def plot_obstacles(previous_obstacles, new_obstacles, updated_obstacles, updated
         new_x, new_y = zip(*new_obstacles)
     if len(updated_obstacles)>0:
         updated_x, updated_y = zip(*updated_obstacles)
-
     # Create a new figure
     plt.figure()
 
     # Plot the obstacle positions from each list
-    plt.scatter(prev_x, prev_y, color='red', label='Previous Obstacles', s=100)
-    plt.scatter(new_x, new_y, color='blue', label='New Obstacles', s=80)
+    #plt.scatter(prev_x, prev_y, color='red', label='Previous Obstacles', s=100)
+    #plt.scatter(new_x, new_y, color='blue', label='New Obstacles', s=80)
     plt.scatter(updated_x, updated_y, color='green', label='Updated Obstacles')
 
     for obstacle, label in zip(updated_obstacles, updated_labels):
@@ -48,11 +47,11 @@ def update_obstacles(previous_obstacles, new_obstacles, previous_labels, new_lab
     fov_left_boundary = math.radians(camera_orientation) - fov_half_angle
     fov_right_boundary = math.radians(camera_orientation) + fov_half_angle
 
-    # Step 1: Initialize the updated obstacle positions list
+    # Initialize the updated obstacle positions list
     updated_obstacles = []
     updated_labels = []
 
-    # Step 2-5: Identify previous obstacles in the FOV
+    # Identify previous obstacles in the FOV
     obstacles_in_fov = []
     labels_in_fov = []
     for obstacle, label in zip(previous_obstacles, previous_labels):
@@ -70,10 +69,10 @@ def update_obstacles(previous_obstacles, new_obstacles, previous_labels, new_lab
     obstacles_in_fov_used = []
     new_obstacles_used = []
     previous_obstacles_used = []
-    # Step 6: Check if the number of obstacles in FOV is less than the number of new obstacles
-    # Step 7-12: Update obstacle positions for close obstacles
+    # Check if the number of obstacles in FOV is less than the number of new obstacles
+    # Update obstacle positions for close obstacles
     for new_obstacle, new_label in zip(new_obstacles, new_labels):
-        min_distance = 0.3
+        min_distance = 0.25
         closest_obstacle = None
         closest_label = None
         for obstacle in previous_obstacles:
@@ -83,22 +82,22 @@ def update_obstacles(previous_obstacles, new_obstacles, previous_labels, new_lab
                 closest_obstacle = obstacle
                 closest_label = label
 
-        # Step 8: Calculate the updated position as the average for close obstacles
+        # Calculate the updated position as the average for close obstacles
         if closest_obstacle is not None and closest_obstacle not in previous_obstacles_used:
             if calculate_distance(camera_position, closest_obstacle) < 0.6:
                 updated_position = new_obstacle
             else:
-                updated_position = ((new_obstacle[0] + closest_obstacle[0]) / 2, (new_obstacle[1] + closest_obstacle[1]) / 2) # Step 8: Calculate the updated position as the average
-            obstacles_in_fov.remove(closest_obstacle) # Step 9: Remove the closest obstacle to avoid duplicate updating
+                updated_position = ((new_obstacle[0] + closest_obstacle[0]) / 2, (new_obstacle[1] + closest_obstacle[1]) / 2) # Calculate the updated position as the average
+            #obstacles_in_fov.remove(closest_obstacle) # Remove the closest obstacle to avoid duplicate updating
             # labels_in_fov.remove(closest_label)
-            updated_obstacles.append(updated_position) # Step 10: Append the updated obstacle position to the updated list
+            updated_obstacles.append(updated_position) # Append the updated obstacle position to the updated list
             updated_labels.append(new_label)
             #add to used 
             previous_obstacles_used.append(closest_obstacle)
             obstacles_in_fov_used.append(closest_obstacle)
             new_obstacles_used.append(new_obstacle)
 
-    # Step 13: Append the remaining new obstacles and previosu obstacles as updated obstacles that did not find a match 
+    # Append the remaining new obstacles and previosu obstacles as updated obstacles that did not find a match 
     updated_obstacles.extend(obstacle for obstacle in new_obstacles if obstacle not in new_obstacles_used)
     updated_labels.extend(label for label, obstacle in zip(new_labels, new_obstacles) if obstacle not in new_obstacles_used) #do you want to add previosu points that are in FOV but not used?
     updated_obstacles.extend(obstacle for obstacle in previous_obstacles if obstacle not in previous_obstacles_used)

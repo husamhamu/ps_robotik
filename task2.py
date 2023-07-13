@@ -72,7 +72,7 @@ def plot_points(robot_position, obstacle_position, points):
 
 
 def add_circle_points(obstacle_position, smoothed_path, closest_goal_point_label):
-    radius = 0.19
+    radius = 0.18
     num_points = 5
 
     #smoothed_path.pop(-1)
@@ -104,6 +104,7 @@ def add_circle_points(obstacle_position, smoothed_path, closest_goal_point_label
 
             # Append the additional points to the smoothed_path
             smoothed_path = smoothed_path + points
+            smoothed_path.append(points[0])
 
             # Plot the robot_position, obstacle_position, and smoothed_path
             plot_points(robot_position, obstacle_position, smoothed_path)
@@ -122,6 +123,7 @@ def add_circle_points(obstacle_position, smoothed_path, closest_goal_point_label
                 points = clockwise_points(obstacle_position, robot_position, radius, num_points)
             else:
                 points = anti_clockwise_points(obstacle_position, robot_position, radius, num_points)
+            points.append(points[0])
 
             # Plot the robot_position, obstacle_position, and points
             plot_points(robot_position, obstacle_position, points)
@@ -191,9 +193,9 @@ def traverse_points(start_point, end_point, smoothed_path, path, motor, pub, pre
                 previous_labels = updated_labels
             smoothed_path.pop(0)
 
-    # Add the points to the planned and driven points
-    planned_path.append(closest_point)
-    driven_path.append(start_point)
+        # Add the points to the planned and driven points
+        planned_path.append(closest_point)
+        driven_path.append(start_point)
     if updated:
         return start_point, updated_obstacles, updated_labels
     else:
@@ -221,7 +223,7 @@ def robot_position(listener):
 
 def find_path(start_point, current_goal_point, obstacles):
     # Create an instance of the RRT class and run the algorithm
-    rrt = RRT(start_point, current_goal_point, obstacles, distance_from_obstacle=0.19)
+    rrt = RRT(start_point, current_goal_point, obstacles, distance_from_obstacle=0.15, max_iter=1000)
     if rrt.extend_tree():
         # If a path is found, retrieve the path and plot it
         path1 = rrt.find_path()
@@ -229,7 +231,7 @@ def find_path(start_point, current_goal_point, obstacles):
         #rrt.plot_path(path1)
         smoothed_path  = rrt.smooth_path(path1)
         print('find_path(): smoothed_path', smoothed_path)
-        rrt.plot_smoothed_path(smoothed_path)
+        #rrt.plot_smoothed_path(smoothed_path)
         
         return path1, smoothed_path
     else:
@@ -238,7 +240,7 @@ def find_path(start_point, current_goal_point, obstacles):
 
 def go_to_start_goal(start_point, goal_point, obstacle_positions, motor):
     path, smoothed_path = find_path(start_point, goal_point, obstacle_positions)
-    while smoothed_path:
+    while len(smoothed_path)>0:
         print("go_to_start_goal: start_point", start_point)
         print("go_to_start_goal: point_set", smoothed_path)
         if len(smoothed_path)>= 2:
@@ -253,6 +255,9 @@ def go_to_start_goal(start_point, goal_point, obstacle_positions, motor):
             # Remove the visited point from the set
             for _ in range(closest_point_index + 1):
                 smoothed_path.pop(0) #make sure to pop the previous points as well if there is any 
+        else:
+            start_point, transformation_matrix, robot_orientation = follow_point(goal_point, motor=motor)
+            return
         # Add the points to the planned and driven points
         planned_path.append(closest_point)
         driven_path.append(start_point)
@@ -292,11 +297,12 @@ def traverse_goal_points(start_point, goal_point_set, labels):
         # Remove the visited point from the set
         goal_point_set.pop(closest_goal_point_index) 
         labels.pop(closest_goal_point_index)
+    go_to_start_goal(start_point, (0.1, 0.1), obstacle_positions, motor)
+
     #save planned and driven path
     plot_path(planned_path, title='Planned path')
     plot_path(driven_path, title='Driven path')
     plot_obstacle_with_labels(obstacle_positions, obstacle_labels, title="Task1")
-    go_to_start_goal(start_point, (0.1, 0.1), obstacle_positions, motor)
 
 
 if __name__ == '__main__':
@@ -324,10 +330,9 @@ if __name__ == '__main__':
         label = args[i+2]
         points.append((point_x, point_y))
         labels.append(label)
-
-    # Your node logic goes here
-    for point in points:
-        x, y, label = point
-        rospy.loginfo(f"Point: ({x}, {y}), Label: {label}")
+    print(points)
+    print(labels)
     traverse_goal_points(start_point, points, labels)
+    print('planned_path', planned_path)
+    print('driven_path', driven_path)
     plt.close("all")

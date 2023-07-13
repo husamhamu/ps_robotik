@@ -96,7 +96,7 @@ def find_path(start_point, current_goal_point, obstacles):
 
 def go_to_start_goal(start_point, goal_point, obstacle_positions, motor):
     path, smoothed_path = find_path(start_point, goal_point, obstacle_positions)
-    while smoothed_path:
+    while len(smoothed_path)>0:
         print("go_to_start_goal: start_point", start_point)
         print("go_to_start_goal: point_set", smoothed_path)
         if len(smoothed_path)>= 2:

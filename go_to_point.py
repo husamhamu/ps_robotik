@@ -58,6 +58,11 @@ def follow_point(goal_point, motor):
             x, y, z = trans
             # rospy.loginfo("Frame: /your_frame_name, Position: [x: %.2f, y: %.2f, z: %.2f]", x, y, z)
 
+            # check if position read is valid
+            if x >1.6 or y>1.6 or x<0 or y<0:
+                rate.sleep()
+                continue
+
             # Read angle values
             roll, pitch, yaw = tfs.euler_from_quaternion(rot)
 

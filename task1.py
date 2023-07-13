@@ -107,7 +107,8 @@ def robot_position(listener):
 
 def find_path(start_point, current_goal_point, obstacles):
     # Create an instance of the RRT class and run the algorithm
-    rrt = RRT(start_point, current_goal_point, obstacles, distance_from_obstacle=0.18,max_iter=2000)
+    start_time = time.time()
+    rrt = RRT(start_point, current_goal_point, obstacles, distance_from_obstacle=0.18,max_iter=1000)
     if rrt.extend_tree():
         # If a path is found, retrieve the path and plot it
         path1 = rrt.find_path()
@@ -116,7 +117,9 @@ def find_path(start_point, current_goal_point, obstacles):
         smoothed_path  = rrt.smooth_path(path1)
         print('find_path(): smoothed_path', smoothed_path)
         rrt.plot_smoothed_path(smoothed_path)
-        
+        end_time = time.time()
+        elapsed_time = end_time - start_time
+        print("find_path() finished in", elapsed_time, "seconds")
         return path1, smoothed_path
     else:
         print("Unable to find a path.")
@@ -153,7 +156,7 @@ def traverse_goal_points(start_point, goal_point_set):
         # Remove the visited point from the set
         goal_point_set.pop(closest_goal_point_index)
 
-        plot_obstacle_with_labels(obstacle_positions, obstacle_labels, title="Task1")
+    plot_obstacle_with_labels(obstacle_positions, obstacle_labels, title="Task1")
 
 if __name__ == '__main__':
     # Example usage
