@@ -14,4 +14,5 @@ employed to facilitate object detection, obstacle avoidance, and
 path planning for the JetBot vehicle, employing mapping, tracing,
 and sorting objects
 
+Task 2:
 [![IMAGE ALT TEXT](http://img.youtube.com/vi/4LyQlrHVhtc/0.jpg)](http://www.youtube.com/watch?v=4LyQlrHVhtc "Task 2")
