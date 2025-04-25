@@ -1,7 +1,7 @@
 
 ---
 
-# Projektseminar an TU Darmstadt  
+# ![image](https://github.com/user-attachments/assets/1f6539f3-562e-4bd0-93de-bb44bc55a9c4) Projektseminar an TU Darmstadt  
 ## Zusammenfassung:  
 Ziel dieser Arbeit ist die Entwicklung eines KI-gesteuerten Fahrzeugs, **JetBot AI**, unter Nutzung des NVIDIA Jetson Nano Moduls. Der Fokus liegt auf der Implementierung zentraler Funktionalitäten wie der autonomen Hinderniserkennung mittels Kameradaten, der Planung von Navigationspfaden sowie der Bewegungssteuerung des Fahrzeugs. Durch die Analyse von Umgebungsdaten wird ein sicherer Navigationspfad generiert, um Hindernisse effektiv zu vermeiden, und der JetBot wird präzise gesteuert, um die erforderlichen Aktionen auszuführen. Die Arbeit integriert fortschrittliche Methoden wie Kartenerstellung, Hinderniserkennung und Umgehungsalgorithmen. Es werden die eingesetzten Verfahren zur Objekterkennung, Hindernisvermeidung und Pfadplanung detailliert erläutert, einschließlich Mapping, Objektverfolgung und -sortierung.
 
