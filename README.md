@@ -89,5 +89,3 @@ jetbot/
 Dieses Projekt steht unter der MIT-Lizenz – siehe die Datei [LICENSE](LICENSE) für Details.
 
 ---
-
-Wenn du magst, kann ich dir das auch als formatiertes PDF oder Markdown-Datei exportieren. Sag einfach Bescheid!
